@@ -7,7 +7,11 @@ find_package(Curses REQUIRED)
 
 add_executable(RoboGame main.cpp
         Robot/Robot.h
-        Robot/Robot.cpp)
+        Robot/Robot.cpp
+        Field/Field.h
+        Field/Field.cpp
+        Field/Cell.cpp
+        Field/Cell.h)
 
 target_include_directories(RoboGame PRIVATE ${CURSES_INCLUDE_DIRS})
 target_link_libraries(RoboGame PRIVATE ${CURSES_LIBRARIES})
