@@ -1,17 +1,20 @@
 #pragma once
+#include <string>
 
 class Robot {
 private:
+    std::string name;
     int hp, max_hp;
     int attack_power;
     int energy, max_energy;
     int exp, exp_to_next_rank; // Ранг матрицы :)
     int rank;
-    bool is_enemy; // true - враг, false - дружбан
+    bool enemy; // true - враг, false - дружбан
 
 public:
-    Robot(bool is_enemy);
+    Robot(std::string p_name, bool p_is_enemy);
 
+    std::string get_name() const;
     int get_hp() const;
     int get_max_hp() const;
     int get_attack_power() const;
@@ -26,7 +29,7 @@ public:
     void change_energy(int amount);
     void add_exp(int amount);
 
-    void interact(Robot& robot);
+    void interact(Robot& other);
 
 private:
     void check_rank_up();

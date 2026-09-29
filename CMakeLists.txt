@@ -4,4 +4,5 @@ project(RoboGame)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(RoboGame main.cpp
-        Robot.h)
+        Robot.h
+        Robot.cpp)
