@@ -1,7 +1,10 @@
 #include "Robot.h"
+#include "Prices.h"
 #include <algorithm>
 
-Robot::Robot(std::string p_name, bool p_enemy) {
+Robot::Robot(std::string p_name, int start_y, int start_x, bool p_enemy) {
+    y = start_y;
+    x = start_x;
     name = p_name;
     max_hp = 100;
     hp = max_hp;
@@ -16,6 +19,14 @@ Robot::Robot(std::string p_name, bool p_enemy) {
 
 std::string Robot::get_name() const {
     return name;
+}
+
+int Robot::get_y() const {
+    return y;
+}
+
+int Robot::get_x() const {
+    return x;
 }
 
 int Robot::get_hp() const {
@@ -86,8 +97,10 @@ void Robot::check_rank_up() {
 void Robot::interact(Robot &other) {
     if (this->enemy != other.enemy) {
         other.change_hp(-this->attack_power);
+        this->change_energy(-static_cast<int>(Prices::Attack));
     }
     else {
         other.change_hp(15);
+        this->change_energy(-static_cast<int>(Prices::Heal));
     }
 }

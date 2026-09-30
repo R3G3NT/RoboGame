@@ -1,8 +1,13 @@
 #include "Field.h"
+#include <stdexcept>
 
 Field::Field(int p_width, int p_height) {
+    if (p_width < 10 || p_width > 70 || p_height < 5 || p_height > 25) {
+        throw std::invalid_argument("Invalid field size!");
+    }
     width = p_width;
     height = p_height;
+    grid.resize(height, std::vector<Cell>(width));
 }
 
 int Field::get_width() const {
@@ -13,10 +18,10 @@ int Field::get_height() const {
     return height;
 }
 
-const Cell& Field::get_cell(int y, int x) const {
+const Cell& Field::get_cell(int x, int y) const {
     return grid[y][x];
 }
 
-bool Field::is_walkable(int y, int x) const {
-    return get_cell(y, x).get_walkable();
+bool Field::is_walkable(int x, int y) const {
+    return grid[y][x].get_walkable();
 }

@@ -4,17 +4,20 @@
 class Robot {
 private:
     std::string name;
+    int y, x;
     int hp, max_hp;
     int attack_power;
     int energy, max_energy;
-    int exp, exp_to_next_rank; // Ранг матрицы :)
-    int rank;
+    int exp, exp_to_next_rank;
+    int rank; // Ранг матрицы :)
     bool enemy; // true - враг, false - дружбан
 
 public:
-    Robot(std::string p_name, bool p_is_enemy);
+    Robot(std::string p_name, int start_y, int start_x, bool p_is_enemy);
 
     std::string get_name() const;
+    int get_y() const;
+    int get_x() const;
     int get_hp() const;
     int get_max_hp() const;
     int get_attack_power() const;
