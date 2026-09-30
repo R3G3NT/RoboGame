@@ -1,6 +1,12 @@
 #include <iostream>
+#include <ncurses.h>
+#include "Field/Field.h"
+#include "Game/Visualizer.h"
 
 int main() {
-    std::cout << "Hello World" << std::endl;
+    Field field(25, 10);
+    Visualizer::init_screen();
+    Visualizer::draw(field);
+    getch();
     return 0;
 }

@@ -4,8 +4,7 @@
 
 class Field {
 private:
-    int width;
-    int height;
+    int width, height;
     std::vector<std::vector<Cell>> grid;
 
 public:
@@ -14,5 +13,6 @@ public:
     int get_width() const;
     int get_height() const;
     Cell& get_cell(int x, int y);
+
     bool is_walkable(int x, int y) const;
 };

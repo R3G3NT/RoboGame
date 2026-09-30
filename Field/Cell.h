@@ -1,16 +1,19 @@
 #pragma once
-#include "../Robot/Robot.h"
+
+class Robot;
 
 class Cell {
 private:
-    bool walkable;
+    bool walkable = true;
+    Robot* robot = nullptr;
 
 public:
-    Robot *robot; // робот, который находится на клетке
-
-    Cell();
-    Cell(bool p_walkable, Robot *p_robot);
+    Cell(bool is_walkable);
 
     bool is_walkable() const;
     bool has_robot() const;
+
+    Robot* get_robot() const;
+    void set_robot(Robot* other);
+    void remove_robot();
 };

@@ -1,5 +1,5 @@
-#include "Field.h"
 #include <stdexcept>
+#include "Field.h"
 
 Field::Field(int p_width, int p_height) {
     if (p_width < 10 || p_width > 70 || p_height < 5 || p_height > 25) {
@@ -7,16 +7,11 @@ Field::Field(int p_width, int p_height) {
     }
     width = p_width;
     height = p_height;
-    grid.resize(height, std::vector<Cell>(width));
+    grid.resize(height, std::vector<Cell>(width, Cell(true)));
 }
 
-int Field::get_width() const {
-    return width;
-}
-
-int Field::get_height() const {
-    return height;
-}
+int Field::get_width() const { return width; }
+int Field::get_height() const { return height; }
 
 Cell& Field::get_cell(int x, int y) {
     return grid[y][x];
