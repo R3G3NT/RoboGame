@@ -5,13 +5,13 @@ Cell::Cell() {
     walkable = true;
 }
 
-Cell::Cell(Robot *p_robot, bool p_walkable) {
+Cell::Cell(bool p_walkable, Robot *p_robot) {
     walkable = p_walkable;
     robot = p_robot;
 }
 
-bool Cell::get_walkable() const {
-    return walkable;
+bool Cell::is_walkable() const {
+    return walkable && !has_robot();
 }
 
 bool Cell::has_robot() const {

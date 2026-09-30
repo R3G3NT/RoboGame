@@ -1,23 +1,25 @@
 #pragma once
 #include <string>
+#include "../Field/Field.h"
 
 class Robot {
 private:
     std::string name;
-    int y, x;
+    int x, y;
     int hp, max_hp;
     int attack_power;
     int energy, max_energy;
     int exp, exp_to_next_rank;
     int rank; // Ранг матрицы :)
     bool enemy; // true - враг, false - дружбан
+    Field* field;
 
 public:
-    Robot(std::string p_name, int start_y, int start_x, bool p_is_enemy);
+    Robot(std::string p_name, int start_x, int start_y, bool p_enemy, Field* p_field);
 
     std::string get_name() const;
-    int get_y() const;
     int get_x() const;
+    int get_y() const;
     int get_hp() const;
     int get_max_hp() const;
     int get_attack_power() const;
@@ -32,6 +34,11 @@ public:
     void change_energy(int amount);
     void add_exp(int amount);
 
+    void move_up();
+    void move_down();
+    void move_left();
+    void move_right();
+    void rest();
     void interact(Robot& other);
 
 private:

@@ -4,12 +4,13 @@
 class Cell {
 private:
     bool walkable;
-    Robot *robot;
 
 public:
-    Cell();
-    Cell(Robot *p_robot, bool p_walkable);
+    Robot *robot; // робот, который находится на клетке
 
-    bool get_walkable() const;
+    Cell();
+    Cell(bool p_walkable, Robot *p_robot);
+
+    bool is_walkable() const;
     bool has_robot() const;
 };

@@ -12,7 +12,8 @@ add_executable(RoboGame main.cpp
         Field/Field.cpp
         Field/Cell.cpp
         Field/Cell.h
-        Robot/Prices.h)
+        Robot/Prices.h
+)
 
 target_include_directories(RoboGame PRIVATE ${CURSES_INCLUDE_DIRS})
 target_link_libraries(RoboGame PRIVATE ${CURSES_LIBRARIES})

@@ -18,10 +18,10 @@ int Field::get_height() const {
     return height;
 }
 
-const Cell& Field::get_cell(int x, int y) const {
+Cell& Field::get_cell(int x, int y) {
     return grid[y][x];
 }
 
 bool Field::is_walkable(int x, int y) const {
-    return grid[y][x].get_walkable();
+    return grid[y][x].is_walkable();
 }

@@ -13,6 +13,6 @@ public:
 
     int get_width() const;
     int get_height() const;
-    const Cell& get_cell(int y, int x) const;
-    bool is_walkable(int y, int x) const;
+    Cell& get_cell(int x, int y);
+    bool is_walkable(int x, int y) const;
 };
