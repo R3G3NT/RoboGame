@@ -20,3 +20,11 @@ Cell& Field::GetCell(int x, int y) {
 bool Field::IsWalkable(int x, int y) const {
     return grid[y][x].IsWalkable();
 }
+
+void Field::ClearVisibility() {
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            grid[y][x].SetVisible(false);
+        }
+    }
+}

@@ -114,7 +114,58 @@ void GameEngine::HandleEnemiesTurn() {
     }
 }
 
+void GameEngine::UpdateVisibility() {
+    if (!player_ptr) return;
+
+    int radius = 3;
+    for (int dy = -radius; dy <= radius; dy++) {
+        for (int dx = -radius; dx <= radius; dx++) {
+            int x = player_ptr->x + dx;
+            int y = player_ptr->y + dy;
+
+            if (x < 0 || x >= field.GetWidth() ||
+                y < 0 || y >= field.GetHeight()) continue;
+
+            field.GetCell(x, y).SetVisible(true);
+        }
+    }
+}
+
+void GameEngine::LoadLevel(std::vector<std::string>& level) {
+    int e = 1, f = 1; // Счётчик врагов и друзей
+    for (int y = 0; y < field.GetHeight(); y++) {
+        for (int x = 0; x < field.GetWidth(); x++){
+            char c = level[y][x];
+
+            if (c == '#') {
+                field.GetCell(x, y).SetWalkable(false);
+                continue;
+            }
+
+            if (c == 'R') {
+                SpawnRobot(
+                    std::make_unique<Robot>("Optimus", Robot::Type::Player, 100, 20, 60), x, y);
+            }
+            else if (c == 'F') {
+                SpawnRobot(
+                    std::make_unique<Robot>("Friend" + std::to_string(f), Robot::Type::Friend, 30, 5, 20), 
+                    x, y);
+                f++;
+            }
+            else if (c == 'E') {
+                SpawnRobot(
+                    std::make_unique<Robot>("Enemy" + std::to_string(e), Robot::Type::Enemy, 50, 10, 30), 
+                    x, y);
+                e++;
+            }
+        }
+    }
+}
+
 void GameEngine::Run() {
+    field.ClearVisibility();
+    UpdateVisibility();
+
     while (player_ptr != nullptr) { // Играем, пока игрок жив
         erase();
         Visualizer::Draw(field);
@@ -127,6 +178,8 @@ void GameEngine::Run() {
         CleanDeadRobots();
         HandleEnemiesTurn();
         CleanDeadRobots();
+
+        UpdateVisibility();
 
         for (auto& robot : robots) {
             robot->RestoreEnergy();

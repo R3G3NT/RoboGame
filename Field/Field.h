@@ -17,6 +17,7 @@ public:
     Cell& GetCell(int x, int y);
 
     bool IsWalkable(int x, int y) const;
+    void ClearVisibility();
 };
 
 #endif

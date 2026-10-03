@@ -21,7 +21,9 @@ void Visualizer::Draw(Field& field) {
         for (int x = 0; x < field.GetWidth(); x++) {
             Cell& cell = field.GetCell(x, y);
 
-            if (!cell.IsWalkable() && !cell.HasRobot()) {
+            if (!cell.IsVisible()) {
+                printw(".");
+            } else if (!cell.IsWalkable() && !cell.HasRobot()) {
                 printw("#");
             } else if (cell.HasRobot()) {
                 Robot* robot = cell.GetRobot();
@@ -33,7 +35,7 @@ void Visualizer::Draw(Field& field) {
                     printw("E");
                 }
             } else {
-                printw(".");
+                printw(" ");
             }
         }
         printw("\n");

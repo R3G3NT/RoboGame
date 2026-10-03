@@ -24,6 +24,8 @@ public:
 
     void SpawnRobot(std::unique_ptr<Robot> robot, int x, int y);
     void MoveRobot(int fromX, int fromY, int toX, int toY);
+    void UpdateVisibility();
+    void LoadLevel(std::vector<std::string>& level);
     void Run();
 };
 
