@@ -15,10 +15,11 @@ private:
     int energy, max_energy;
     int exp, exp_to_next_rank;
     int rank = 1;
+    int speed;
 
 public:
     int x, y;
-    Robot(std::string name, Type type, int hp, int attack, int energy);
+    Robot(std::string name, Type type, int hp, int attack, int energy, int speed);
 
     std::string GetName() const;
     Type GetType() const;
@@ -30,10 +31,12 @@ public:
     int GetExp() const;
     int GetExpToNextRank() const;
     int GetRank() const;
+    int GetSpeed() const;
 
     void ChangeHp(int amount);
     void ChangeEnergy(int amount);
     void AddExp(int amount);
+    void ChangeSpeed(int amount);
 
     void RestoreEnergy();
     void Interact(Robot* other);
