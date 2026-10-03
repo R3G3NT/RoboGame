@@ -1,14 +1,18 @@
 #include "Cell.h"
 #include "../Robot/Robot.h"
 
-Cell::Cell(bool walkable) : walkable(walkable) {}
+Cell::Cell(Terrain p_terrain) : terrain(p_terrain) {}
 
-bool Cell::IsWalkable() const {
-    return walkable && (robot == nullptr);
+Terrain Cell::GetTerrain() const {
+    return terrain;
 }
 
-void Cell::SetWalkable(bool p_walkable) {
-    walkable = p_walkable;
+bool Cell::IsWalkable() const {
+    return terrain != Terrain::Wall && robot == nullptr;
+}
+
+void Cell::SetTerrain(Terrain p_terrain) {
+    terrain = p_terrain;
 }
 
 bool Cell::IsVisible() const {

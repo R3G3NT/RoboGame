@@ -137,26 +137,30 @@ void GameEngine::LoadLevel(std::vector<std::string>& level) {
         for (int x = 0; x < field.GetWidth(); x++){
             char c = level[y][x];
 
-            if (c == '#') {
-                field.GetCell(x, y).SetWalkable(false);
-                continue;
-            }
-
-            if (c == 'R') {
-                SpawnRobot(
-                    std::make_unique<Robot>("Optimus", Robot::Type::Player, 100, 20, 60), x, y);
-            }
-            else if (c == 'F') {
-                SpawnRobot(
-                    std::make_unique<Robot>("Friend" + std::to_string(f), Robot::Type::Friend, 30, 5, 20), 
-                    x, y);
-                f++;
-            }
-            else if (c == 'E') {
-                SpawnRobot(
-                    std::make_unique<Robot>("Enemy" + std::to_string(e), Robot::Type::Enemy, 50, 10, 30), 
-                    x, y);
-                e++;
+            switch (c)
+            {
+                case '#':
+                    field.GetCell(x, y).SetTerrain(Terrain::Wall);
+                    break;
+                case '~':
+                    field.GetCell(x, y).SetTerrain(Terrain::Swamp);
+                    break;
+                case 'R':
+                    SpawnRobot(
+                        std::make_unique<Robot>("Optimus", Robot::Type::Player, 100, 20, 60), x, y);
+                    break;
+                case 'F':
+                    SpawnRobot(
+                        std::make_unique<Robot>("Friend" + std::to_string(f), Robot::Type::Friend, 30, 5, 20), 
+                        x, y);
+                    f++;
+                    break;
+                case 'E':
+                    SpawnRobot(
+                        std::make_unique<Robot>("Enemy" + std::to_string(e), Robot::Type::Enemy, 50, 10, 30), 
+                        x, y);
+                    e++;
+                    break;
             }
         }
     }

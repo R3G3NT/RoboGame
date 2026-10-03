@@ -23,7 +23,7 @@ void Visualizer::Draw(Field& field) {
 
             if (!cell.IsVisible()) {
                 printw(".");
-            } else if (!cell.IsWalkable() && !cell.HasRobot()) {
+            } else if (cell.GetTerrain() == Terrain::Wall) {
                 printw("#");
             } else if (cell.HasRobot()) {
                 Robot* robot = cell.GetRobot();
@@ -34,6 +34,8 @@ void Visualizer::Draw(Field& field) {
                 } else if (robot->GetType() == Robot::Type::Enemy) {
                     printw("E");
                 }
+            } else if (cell.GetTerrain() == Terrain::Swamp) {
+                printw("~");
             } else {
                 printw(" ");
             }
