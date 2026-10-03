@@ -60,7 +60,7 @@ void GameEngine::MoveRobot(int from_x, int from_y, int dx, int dy) {
         budget--;
     }
 
-    if (field.GetCell(x, y).GetTerrain() == Terrain::Swamp) {
+    if (field.GetCell(moving_robot->x, moving_robot->y).GetTerrain() == Terrain::Swamp) {
         moving_robot->ChangeSpeed(-1);
     }
 }
