@@ -8,7 +8,6 @@
 
 class GameEngine {
 private:
-    Field field;
     std::vector<std::unique_ptr<Robot>> robots;
 
     Robot* player_ptr = nullptr;
@@ -20,6 +19,7 @@ private:
     void CleanDeadRobots();
 
 public:
+    Field field;
     GameEngine(int width, int height);
 
     void SpawnRobot(std::unique_ptr<Robot> robot, int x, int y);
