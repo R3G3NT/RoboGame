@@ -26,7 +26,7 @@ void Visualizer::draw(Field& field) {
             } else if (cell.has_robot()) {
                 Robot* robot = cell.get_robot();
                 if (robot->get_type() == Robot::Type::Player) {
-                    printw("P");
+                    printw("R");
                 } else if (robot->get_type() == Robot::Type::Friend) {
                     printw("F");
                 } else if (robot->get_type() == Robot::Type::Enemy) {

@@ -13,6 +13,10 @@ bool Cell::has_robot() const {
 
 Robot* Cell::get_robot() const { return robot; }
 
+void Cell::set_walkable(bool p_walkable) {
+    walkable = p_walkable;
+}
+
 void Cell::set_robot(Robot* other) {
     robot = other;
 }

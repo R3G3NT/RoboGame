@@ -15,6 +15,7 @@ private:
     int rank = 1;
 
 public:
+    int x, y;
     Robot(std::string name, Type type, int hp, int attack, int energy);
 
     Type get_type() const;

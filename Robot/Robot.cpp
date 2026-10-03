@@ -39,58 +39,6 @@ void Robot::check_rank_up() {
     }
 }
 
-// void Robot::move_up() {
-//     if (field->get_cell(x, y + 1).has_robot()) {
-//         interact(field->get_cell(x, y + 1).robot);
-//         return;
-//     }
-//     if (field->get_cell(x, y + 1).is_walkable() && energy > static_cast<int>(Prices::Move)) {
-//         field->get_cell(x, y).robot = nullptr;
-//         field->get_cell(x, y + 1).robot = this;
-//         y += 1;
-//         change_energy(-static_cast<int>(Prices::Move));
-//     }
-// }
-//
-// void Robot::move_down() {
-//     if (field->get_cell(x, y - 1).has_robot()) {
-//         interact(field->get_cell(x, y - 1).robot);
-//         return;
-//     }
-//     if (field->get_cell(x, y - 1).is_walkable() && energy > static_cast<int>(Prices::Move)) {
-//         field->get_cell(x, y).robot = nullptr;
-//         field->get_cell(x, y - 1).robot = this;
-//         y -= 1;
-//         change_energy(-static_cast<int>(Prices::Move));
-//     }
-// }
-//
-// void Robot::move_left() {
-//     if (field->get_cell(x - 1, y).has_robot()) {
-//         interact(field->get_cell(x - 1, y).robot);
-//         return;
-//     }
-//     if (field->get_cell(x - 1, y).is_walkable() && energy > static_cast<int>(Prices::Move)) {
-//         field->get_cell(x, y).robot = nullptr;
-//         field->get_cell(x - 1, y).robot = this;
-//         x -= 1;
-//         change_energy(-static_cast<int>(Prices::Move));
-//     }
-// }
-//
-// void Robot::move_right() {
-//     if (field->get_cell(x + 1, y).has_robot()) {
-//         interact(field->get_cell(x + 1, y).robot);
-//         return;
-//     }
-//     if (field->get_cell(x + 1, y).is_walkable() && energy > static_cast<int>(Prices::Move)) {
-//         field->get_cell(x, y).robot = nullptr;
-//         field->get_cell(x + 1, y).robot = this;
-//         x += 1;
-//         change_energy(-static_cast<int>(Prices::Move));
-//     }
-// }
-
 void Robot::restore_energy() {
     this->change_energy(10);
 }

@@ -14,6 +14,8 @@ public:
     bool has_robot() const;
 
     Robot* get_robot() const;
+
+    void set_walkable(bool p_walkable);
     void set_robot(Robot* other);
     void remove_robot();
 };

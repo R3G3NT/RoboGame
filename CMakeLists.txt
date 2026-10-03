@@ -15,6 +15,8 @@ add_executable(RoboGame main.cpp
         Robot/Prices.h
         Game/Visualizer.cpp
         Game/Visualizer.h
+        Game/GameEngine.cpp
+        Game/GameEngine.h
 )
 
 target_include_directories(RoboGame PRIVATE ${CURSES_INCLUDE_DIRS})
