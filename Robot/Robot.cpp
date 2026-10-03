@@ -50,22 +50,22 @@ void Robot::RestoreEnergy() {
     this->ChangeEnergy(10);
 }
 
-void Robot::Interact(Robot& other) {
+void Robot::Interact(Robot* other) {
     bool is_enemy =
-        (this->type == Type::Player && other.type == Type::Enemy) ||
-        (this->type == Type::Enemy  && other.type == Type::Player);
+        (this->type == Type::Player && other->type == Type::Enemy) ||
+        (this->type == Type::Enemy  && other->type == Type::Player);
 
     if (is_enemy) {
         if (this->energy < static_cast<int>(Prices::Attack)) return;
 
-        other.ChangeHp(-this->attack_power);
+        other->ChangeHp(-this->attack_power);
         this->ChangeEnergy(-static_cast<int>(Prices::Attack));
         this->AddExp(5);
     }
-    else {
-        if (this->energy < static_cast<int>(Prices::Heal)) return;
+    else if (this->type == Type::Player && other->type == Type::Friend) {
+        if (other->energy < static_cast<int>(Prices::Heal)) return;
 
-        other.ChangeHp(15);
-        this->ChangeEnergy(-static_cast<int>(Prices::Heal));
+        this->ChangeHp(15);
+        other->ChangeEnergy(-static_cast<int>(Prices::Heal));
     }
 }

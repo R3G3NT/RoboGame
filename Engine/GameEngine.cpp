@@ -30,10 +30,10 @@ void GameEngine::MoveRobot(int fromX, int fromY, int toX, int toY) {
     Cell& target_cell = field.GetCell(toX, toY);
 
     if (!current_cell.HasRobot()) return;
-    Robot* moving_robot = current_cell.get_robot();
+    Robot* moving_robot = current_cell.GetRobot();
 
     if (target_cell.HasRobot()) {
-        moving_robot->Interact(*target_cell.get_robot());
+        moving_robot->Interact(target_cell.GetRobot());
         return;
     }
 
@@ -96,30 +96,20 @@ void GameEngine::HandlePlayerTurn() {
     }
 }
 
-// ХОД ВРАГОВ: Простейший ИИ
 void GameEngine::HandleEnemiesTurn() {
-    // В рамках лабораторной работы: каждый враг находит игрока и делает шаг в его сторону
     if (!player_ptr) return;
 
-    for (int y = 0; y < field.GetHeight(); ++y) {
-        for (int x = 0; x < field.GetWidth(); ++x) {
-            Cell& cell = field.GetCell(x, y);
-            if (cell.HasRobot() && cell.get_robot()->GetType() == Robot::Type::Enemy) {
-                Robot* enemy = cell.get_robot();
-                if (enemy->GetHp() <= 0) continue;
+    for (int i = 0; i < robots.size(); i++) {
+        if (robots[i]->GetType() == Robot::Type::Enemy) {
+            int next_x = robots[i]->x;
+            int next_y = robots[i]->y;
 
-                int next_x = x;
-                int next_y = y;
+            if (player_x > robots[i]->x) next_x++;
+            else if (player_x < robots[i]->x) next_x--;
+            else if (player_y > robots[i]->y) next_y++;
+            else if (player_y < robots[i]->y) next_y--;
 
-                // Движение по оси X в сторону игрока
-                if (player_x > x) next_x++;
-                else if (player_x < x) next_x--;
-                // Движение по оси Y
-                if (player_y > y) next_y++;
-                else if (player_y < y) next_y--;
-
-                MoveRobot(x, y, next_x, next_y);
-            }
+            MoveRobot(robots[i]->x, robots[i]->y, next_x, next_y);
         }
     }
 }

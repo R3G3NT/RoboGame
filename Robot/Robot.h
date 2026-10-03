@@ -36,7 +36,7 @@ public:
     void AddExp(int amount);
 
     void RestoreEnergy();
-    void Interact(Robot& other);
+    void Interact(Robot* other);
 
 private:
     void CheckRankUp();

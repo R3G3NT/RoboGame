@@ -11,7 +11,7 @@ bool Cell::HasRobot() const {
     return robot != nullptr;
 }
 
-Robot* Cell::get_robot() const { return robot; }
+Robot* Cell::GetRobot() const { return robot; }
 
 void Cell::SetWalkable(bool p_walkable) {
     walkable = p_walkable;

@@ -24,7 +24,7 @@ void Visualizer::Draw(Field& field) {
             if (!cell.IsWalkable() && !cell.HasRobot()) {
                 printw("#");
             } else if (cell.HasRobot()) {
-                Robot* robot = cell.get_robot();
+                Robot* robot = cell.GetRobot();
                 if (robot->GetType() == Robot::Type::Player) {
                     printw("R");
                 } else if (robot->GetType() == Robot::Type::Friend) {

@@ -14,7 +14,7 @@ public:
     bool IsWalkable() const;
     bool HasRobot() const;
 
-    Robot* get_robot() const;
+    Robot* GetRobot() const;
 
     void SetWalkable(bool p_walkable);
     void SetRobot(Robot* other);
