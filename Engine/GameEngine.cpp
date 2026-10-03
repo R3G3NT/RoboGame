@@ -25,23 +25,18 @@ void GameEngine::MoveRobot(int from_x, int from_y, int dx, int dy) {
     if (!field.GetCell(from_x, from_y).HasRobot()) return;
     Robot* moving_robot = field.GetCell(from_x, from_y).GetRobot();
     int budget = moving_robot->GetSpeed();
-    bool interacted = false;
 
     int x = from_x, y = from_y;
     while (budget > 0) {
         x += dx;
         y += dy;
 
-        if (x < 0 || x >= field.GetWidth() ||
+        if (x < 0 || x >= field.GetWidth() || 
             y < 0 || y >= field.GetHeight()) break;
 
         Cell& target_cell = field.GetCell(x, y);
         if (target_cell.HasRobot()) {
-            if (interacted == false) {
-                moving_robot->Interact(target_cell.GetRobot());
-                interacted = true;
-            }
-            budget--;
+            moving_robot->Interact(target_cell.GetRobot());
             return;
         }        
 
@@ -56,7 +51,10 @@ void GameEngine::MoveRobot(int from_x, int from_y, int dx, int dy) {
             }
             moving_robot->x = x;
             moving_robot->y = y;
+        } else { 
+            break; 
         }
+
         budget--;
     }
 
@@ -159,7 +157,8 @@ void GameEngine::LoadLevel(std::vector<std::string>& level) {
                     break;
                 case 'R':
                     SpawnRobot(
-                        std::make_unique<Robot>("Optimus", Robot::Type::Player, 100, 20, 60, 2), x, y);
+                        std::make_unique<Robot>("Optimus", Robot::Type::Player, 100, 20, 60, 2), 
+                        x, y);
                     break;
                 case 'F':
                     SpawnRobot(
