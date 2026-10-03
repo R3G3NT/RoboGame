@@ -2,7 +2,7 @@
 #include <stdexcept>
 
 Field::Field(int p_width, int p_height) {
-    if (p_width < 10 || p_width > 70 || p_height < 5 || p_height > 25) {
+    if (p_width < 10 || p_width > 60 || p_height < 5 || p_height > 20) {
         throw std::invalid_argument("Invalid field size!");
     }
     width = p_width;

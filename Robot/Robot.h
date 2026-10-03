@@ -20,9 +20,16 @@ public:
     int x, y;
     Robot(std::string name, Type type, int hp, int attack, int energy);
 
-    Type GetType() const;
     std::string GetName() const;
+    Type GetType() const;
     int GetHp() const;
+    int GetMaxHp() const;
+    int GetAttackPower() const;
+    int GetEnergy() const;
+    int GetMaxEnergy() const;
+    int GetExp() const;
+    int GetExpToNextRank() const;
+    int GetRank() const;
 
     void ChangeHp(int amount);
     void ChangeEnergy(int amount);

@@ -83,7 +83,7 @@ void GameEngine::HandlePlayerTurn() {
         case 'd': case 'D': case KEY_RIGHT:
             target_x++;
             break;
-        case KEY_ENTER:
+        case '\n':
             player_ptr->RestoreEnergy();
             break;
         case 'q': case 'Q':
@@ -128,6 +128,9 @@ void GameEngine::Run() {
     while (player_ptr != nullptr) { // Играем, пока игрок жив
         erase();
         Visualizer::Draw(field);
+        printw("\n");
+        Visualizer::DrawStatus(player_ptr);
+        printw("\n");
         refresh();
 
         HandlePlayerTurn();
@@ -140,8 +143,10 @@ void GameEngine::Run() {
         }
     }
 
+    erase();
     Visualizer::Draw(field);
-    mvprintw(field.GetHeight() + 2, 0, "GAME OVER! Your robot has been destroyed. Press any key...");
+    printw("\n");
+    printw("GAME OVER! Your robot has been destroyed. Press any key...");
     refresh();
     getch();
 }

@@ -38,5 +38,14 @@ void Visualizer::Draw(Field& field) {
         }
         printw("\n");
     }
-    refresh();
+}
+
+void Visualizer::DrawStatus(Robot* robot) {
+    printw("%s\n", robot->GetName().c_str());
+    printw("HP: %d/%d\n", robot->GetHp(), robot->GetMaxHp());
+    printw("EN: %d/%d\n", robot->GetEnergy(), robot->GetMaxEnergy());
+    printw("ATK: %d\n", robot->GetAttackPower());
+    printw("RANK: %d\n", robot->GetRank());
+    printw("EXP: %d/%d\n", robot->GetExp(), robot->GetExpToNextRank());
+    printw("POS: (%d, %d)\n", robot->x, robot->y);
 }

@@ -4,9 +4,8 @@
 #pragma once
 
 enum class Prices {
-    Move = 10,
-    Attack = 15,
-    Heal = 15
+    Attack = 20,
+    Heal = 20
 };
 
 #endif
