@@ -13,10 +13,10 @@ add_executable(RoboGame main.cpp
         Field/Cell.cpp
         Field/Cell.h
         Robot/Prices.h
-        Game/Visualizer.cpp
-        Game/Visualizer.h
-        Game/GameEngine.cpp
-        Game/GameEngine.h
+        Engine/Visualizer.cpp
+        Engine/Visualizer.h
+        Engine/GameEngine.cpp
+        Engine/GameEngine.h
 )
 
 target_include_directories(RoboGame PRIVATE ${CURSES_INCLUDE_DIRS})

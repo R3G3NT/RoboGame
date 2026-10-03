@@ -1,3 +1,6 @@
+#ifndef PRICES_H_
+#define PRICES_H_
+
 #pragma once
 
 enum class Prices {
@@ -5,3 +8,5 @@ enum class Prices {
     Attack = 15,
     Heal = 15
 };
+
+#endif

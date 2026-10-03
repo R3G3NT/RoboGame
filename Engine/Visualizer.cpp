@@ -1,9 +1,9 @@
-#include <ncurses.h>
 #include "Visualizer.h"
 #include "../Field/Field.h"
 #include "../Robot/Robot.h"
+#include <ncurses.h>
 
-void Visualizer::init_screen() {
+void Visualizer::InitScreen() {
     initscr();             // Врубаем ncurses
     cbreak();              // Отключаем буферизацию строк
     noecho();              // Не выводим нажатые клавиши на экране
@@ -12,24 +12,24 @@ void Visualizer::init_screen() {
     clear();               // Чистим экран
 }
 
-void Visualizer::shutdown() {
+void Visualizer::Shutdown() {
     endwin(); // Восстанавливаем стандартные настройки терминала
 }
 
-void Visualizer::draw(Field& field) {
-    for (int y = 0; y < field.get_height(); y++) {
-        for (int x = 0; x < field.get_width(); x++) {
-            Cell& cell = field.get_cell(x, y);
+void Visualizer::Draw(Field& field) {
+    for (int y = 0; y < field.GetHeight(); y++) {
+        for (int x = 0; x < field.GetWidth(); x++) {
+            Cell& cell = field.GetCell(x, y);
 
-            if (!cell.is_walkable() && !cell.has_robot()) {
+            if (!cell.IsWalkable() && !cell.HasRobot()) {
                 printw("#");
-            } else if (cell.has_robot()) {
+            } else if (cell.HasRobot()) {
                 Robot* robot = cell.get_robot();
-                if (robot->get_type() == Robot::Type::Player) {
+                if (robot->GetType() == Robot::Type::Player) {
                     printw("R");
-                } else if (robot->get_type() == Robot::Type::Friend) {
+                } else if (robot->GetType() == Robot::Type::Friend) {
                     printw("F");
-                } else if (robot->get_type() == Robot::Type::Enemy) {
+                } else if (robot->GetType() == Robot::Type::Enemy) {
                     printw("E");
                 }
             } else {

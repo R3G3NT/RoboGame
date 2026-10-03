@@ -1,30 +1,30 @@
-#include <algorithm>
 #include "Robot.h"
 #include "Prices.h"
+#include <algorithm>
 
 Robot::Robot(std::string name, Type type, int hp, int attack, int energy)
     : name(name), type(type), hp(hp), max_hp(hp), attack_power(attack),
       energy(energy), max_energy(energy), exp(0), exp_to_next_rank(50) {}
 
-Robot::Type Robot::get_type() const { return type; }
-std::string Robot::get_name() const { return name; }
-int Robot::get_hp() const { return hp; }
+Robot::Type Robot::GetType() const { return type; }
+std::string Robot::GetName() const { return name; }
+int Robot::GetHp() const { return hp; }
 
-void Robot::change_hp(int amount) {
+void Robot::ChangeHp(int amount) {
     hp = std::clamp(hp + amount, 0, max_hp);
 }
 
-void Robot::change_energy(int amount) {
+void Robot::ChangeEnergy(int amount) {
     energy = std::clamp(energy + amount, 0, max_hp);
 }
 
-void Robot::add_exp(int amount) {
+void Robot::AddExp(int amount) {
     if (amount <= 0) return;
     exp += amount;
-    check_rank_up();
+    CheckRankUp();
 }
 
-void Robot::check_rank_up() {
+void Robot::CheckRankUp() {
     while (exp >= exp_to_next_rank) {
         rank++;
 
@@ -39,18 +39,18 @@ void Robot::check_rank_up() {
     }
 }
 
-void Robot::restore_energy() {
-    this->change_energy(10);
+void Robot::RestoreEnergy() {
+    this->ChangeEnergy(10);
 }
 
-void Robot::interact(Robot &other) {
+void Robot::Interact(Robot &other) {
     if (other.type == Type::Enemy) {
-        other.change_hp(-this->attack_power);
-        this->add_exp(5);
-        this->change_energy(-static_cast<int>(Prices::Attack));
+        other.ChangeHp(-this->attack_power);
+        this->AddExp(5);
+        this->ChangeEnergy(-static_cast<int>(Prices::Attack));
     }
     else {
-        other.change_hp(15);
-        this->change_energy(-static_cast<int>(Prices::Heal));
+        other.ChangeHp(15);
+        this->ChangeEnergy(-static_cast<int>(Prices::Heal));
     }
 }

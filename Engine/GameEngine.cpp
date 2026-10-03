@@ -1,13 +1,13 @@
-#include <ncurses.h>
-#include <algorithm>
 #include "GameEngine.h"
 #include "Visualizer.h"
+#include <ncurses.h>
+#include <algorithm>
 
 GameEngine::GameEngine(int width, int height) : field(width, height) {}
 
-void GameEngine::spawn_robot(std::unique_ptr<Robot> robot, int x, int y) {
-    if (field.is_walkable(x, y)) {
-        if (robot->get_type() == Robot::Type::Player) {
+void GameEngine::SpawnRobot(std::unique_ptr<Robot> robot, int x, int y) {
+    if (field.IsWalkable(x, y)) {
+        if (robot->GetType() == Robot::Type::Player) {
             player_ptr = robot.get();
             player_x = x;
             player_y = y;
@@ -16,30 +16,30 @@ void GameEngine::spawn_robot(std::unique_ptr<Robot> robot, int x, int y) {
         robot->x = x;
         robot->y = y;
 
-        field.get_cell(x, y).set_robot(robot.get());
+        field.GetCell(x, y).SetRobot(robot.get());
         robots.push_back(std::move(robot));
     }
 }
 
-void GameEngine::move_robot(int fromX, int fromY, int toX, int toY) {
-    if (toX < 0 || toX >= field.get_width() || toY < 0 || toY >= field.get_height()) {
+void GameEngine::MoveRobot(int fromX, int fromY, int toX, int toY) {
+    if (toX < 0 || toX >= field.GetWidth() || toY < 0 || toY >= field.GetHeight()) {
         return;
     }
 
-    Cell& current_cell = field.get_cell(fromX, fromY);
-    Cell& target_cell = field.get_cell(toX, toY);
+    Cell& current_cell = field.GetCell(fromX, fromY);
+    Cell& target_cell = field.GetCell(toX, toY);
 
-    if (!current_cell.has_robot()) return;
+    if (!current_cell.HasRobot()) return;
     Robot* moving_robot = current_cell.get_robot();
 
-    if (target_cell.has_robot()) {
-        moving_robot->interact(*target_cell.get_robot());
+    if (target_cell.HasRobot()) {
+        moving_robot->Interact(*target_cell.get_robot());
         return;
     }
 
-    if (field.is_walkable(toX, toY)) {
-        current_cell.remove_robot();
-        target_cell.set_robot(moving_robot);
+    if (field.IsWalkable(toX, toY)) {
+        current_cell.RemoveRobot();
+        target_cell.SetRobot(moving_robot);
 
         if (moving_robot == player_ptr) {
             player_x = toX;
@@ -51,10 +51,10 @@ void GameEngine::move_robot(int fromX, int fromY, int toX, int toY) {
     }
 }
 
-void GameEngine::clean_dead_robots() {
+void GameEngine::CleanDeadRobots() {
     std::erase_if(robots, [this](std::unique_ptr<Robot>& robot) {
-        if (robot->get_hp() <= 0) {
-            field.get_cell(robot->x, robot->y).remove_robot();
+        if (robot->GetHp() <= 0) {
+            field.GetCell(robot->x, robot->y).RemoveRobot();
             if (robot.get() == player_ptr) {
                 player_ptr = nullptr;
             }
@@ -64,7 +64,7 @@ void GameEngine::clean_dead_robots() {
     });
 }
 
-void GameEngine::handle_player_turn() {
+void GameEngine::HandlePlayerTurn() {
     int ch = getch();
 
     int target_x = player_x;
@@ -84,29 +84,29 @@ void GameEngine::handle_player_turn() {
             target_x++;
             break;
         case KEY_ENTER:
-            player_ptr->restore_energy();
+            player_ptr->RestoreEnergy();
             break;
         case 'q': case 'Q':
-            Visualizer::shutdown();
+            Visualizer::Shutdown();
             exit(0);
     }
 
     if (target_x != player_x || target_y != player_y) {
-        move_robot(player_x, player_y, target_x, target_y);
+        MoveRobot(player_x, player_y, target_x, target_y);
     }
 }
 
 // ХОД ВРАГОВ: Простейший ИИ
-void GameEngine::handle_enemies_turn() {
+void GameEngine::HandleEnemiesTurn() {
     // В рамках лабораторной работы: каждый враг находит игрока и делает шаг в его сторону
     if (!player_ptr) return;
 
-    for (int y = 0; y < field.get_height(); ++y) {
-        for (int x = 0; x < field.get_width(); ++x) {
-            Cell& cell = field.get_cell(x, y);
-            if (cell.has_robot() && cell.get_robot()->get_type() == Robot::Type::Enemy) {
+    for (int y = 0; y < field.GetHeight(); ++y) {
+        for (int x = 0; x < field.GetWidth(); ++x) {
+            Cell& cell = field.GetCell(x, y);
+            if (cell.HasRobot() && cell.get_robot()->GetType() == Robot::Type::Enemy) {
                 Robot* enemy = cell.get_robot();
-                if (enemy->get_hp() <= 0) continue;
+                if (enemy->GetHp() <= 0) continue;
 
                 int next_x = x;
                 int next_y = y;
@@ -118,30 +118,30 @@ void GameEngine::handle_enemies_turn() {
                 if (player_y > y) next_y++;
                 else if (player_y < y) next_y--;
 
-                move_robot(x, y, next_x, next_y);
+                MoveRobot(x, y, next_x, next_y);
             }
         }
     }
 }
 
-void GameEngine::run() {
+void GameEngine::Run() {
     while (player_ptr != nullptr) { // Играем, пока игрок жив
         erase();
-        Visualizer::draw(field);
+        Visualizer::Draw(field);
         refresh();
 
-        handle_player_turn();
-        clean_dead_robots();
-        handle_enemies_turn();
-        clean_dead_robots();
+        HandlePlayerTurn();
+        CleanDeadRobots();
+        HandleEnemiesTurn();
+        CleanDeadRobots();
 
         for (auto& robot : robots) {
-            robot->restore_energy();
+            robot->RestoreEnergy();
         }
     }
 
-    Visualizer::draw(field);
-    mvprintw(field.get_height() + 2, 0, "GAME OVER! Your robot has been destroyed. Press any key...");
+    Visualizer::Draw(field);
+    mvprintw(field.GetHeight() + 2, 0, "GAME OVER! Your robot has been destroyed. Press any key...");
     refresh();
     getch();
 }

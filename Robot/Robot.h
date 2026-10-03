@@ -1,4 +1,6 @@
-#pragma once
+#ifndef ROBOT_H_
+#define ROBOT_H_
+
 #include <string>
 
 class Robot {
@@ -18,17 +20,19 @@ public:
     int x, y;
     Robot(std::string name, Type type, int hp, int attack, int energy);
 
-    Type get_type() const;
-    std::string get_name() const;
-    int get_hp() const;
+    Type GetType() const;
+    std::string GetName() const;
+    int GetHp() const;
 
-    void change_hp(int amount);
-    void change_energy(int amount);
-    void add_exp(int amount);
+    void ChangeHp(int amount);
+    void ChangeEnergy(int amount);
+    void AddExp(int amount);
 
-    void restore_energy();
-    void interact(Robot& other);
+    void RestoreEnergy();
+    void Interact(Robot& other);
 
 private:
-    void check_rank_up();
+    void CheckRankUp();
 };
+
+#endif

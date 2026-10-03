@@ -1,6 +1,8 @@
-#pragma once
-#include <vector>
+#ifndef FIELD_H_
+#define FIELD_H_
+
 #include "Cell.h"
+#include <vector>
 
 class Field {
 private:
@@ -10,9 +12,11 @@ private:
 public:
     Field(int p_width, int p_height);
 
-    int get_width() const;
-    int get_height() const;
-    Cell& get_cell(int x, int y);
+    int GetWidth() const;
+    int GetHeight() const;
+    Cell& GetCell(int x, int y);
 
-    bool is_walkable(int x, int y) const;
+    bool IsWalkable(int x, int y) const;
 };
+
+#endif

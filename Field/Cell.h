@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CELL_H_
+#define CELL_H_
 
 class Robot;
 
@@ -10,12 +11,14 @@ private:
 public:
     Cell(bool is_walkable);
 
-    bool is_walkable() const;
-    bool has_robot() const;
+    bool IsWalkable() const;
+    bool HasRobot() const;
 
     Robot* get_robot() const;
 
-    void set_walkable(bool p_walkable);
-    void set_robot(Robot* other);
-    void remove_robot();
+    void SetWalkable(bool p_walkable);
+    void SetRobot(Robot* other);
+    void RemoveRobot();
 };
+
+#endif

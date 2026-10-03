@@ -3,24 +3,24 @@
 
 Cell::Cell(bool walkable) : walkable(walkable) {}
 
-bool Cell::is_walkable() const {
+bool Cell::IsWalkable() const {
     return walkable && (robot == nullptr);
 }
 
-bool Cell::has_robot() const {
+bool Cell::HasRobot() const {
     return robot != nullptr;
 }
 
 Robot* Cell::get_robot() const { return robot; }
 
-void Cell::set_walkable(bool p_walkable) {
+void Cell::SetWalkable(bool p_walkable) {
     walkable = p_walkable;
 }
 
-void Cell::set_robot(Robot* other) {
+void Cell::SetRobot(Robot* other) {
     robot = other;
 }
 
-void Cell::remove_robot() {
+void Cell::RemoveRobot() {
     robot = nullptr;
 }

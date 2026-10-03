@@ -1,5 +1,5 @@
-#include <stdexcept>
 #include "Field.h"
+#include <stdexcept>
 
 Field::Field(int p_width, int p_height) {
     if (p_width < 10 || p_width > 70 || p_height < 5 || p_height > 25) {
@@ -10,13 +10,13 @@ Field::Field(int p_width, int p_height) {
     grid.resize(height, std::vector<Cell>(width, Cell(true)));
 }
 
-int Field::get_width() const { return width; }
-int Field::get_height() const { return height; }
+int Field::GetWidth() const { return width; }
+int Field::GetHeight() const { return height; }
 
-Cell& Field::get_cell(int x, int y) {
+Cell& Field::GetCell(int x, int y) {
     return grid[y][x];
 }
 
-bool Field::is_walkable(int x, int y) const {
-    return grid[y][x].is_walkable();
+bool Field::IsWalkable(int x, int y) const {
+    return grid[y][x].IsWalkable();
 }
