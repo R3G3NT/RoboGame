@@ -10,7 +10,7 @@ private:
     std::vector<std::vector<Cell>> grid;
 
 public:
-    Field(int p_width, int p_height);
+    Field(int width, int height);
 
     int GetWidth() const;
     int GetHeight() const;

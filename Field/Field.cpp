@@ -1,12 +1,12 @@
 #include "Field.h"
 #include <stdexcept>
 
-Field::Field(int p_width, int p_height) {
-    if (p_width < 10 || p_width > 60 || p_height < 5 || p_height > 20) {
+Field::Field(int width, int height) {
+    if (width < 10 || width > 60 || height < 5 || height > 20) {
         throw std::invalid_argument("Invalid field size!");
     }
-    width = p_width;
-    height = p_height;
+    this->width = width;
+    this->height = height;
     grid.resize(height, std::vector<Cell>(width, Cell(Terrain::Floor)));
 }
 

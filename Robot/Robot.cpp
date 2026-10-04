@@ -11,12 +11,12 @@ Robot::Type Robot::GetType() const { return type; }
 int Robot::GetHp() const { return hp; }
 int Robot::GetMaxHp() const { return max_hp; }
 int Robot::GetAttackPower() const { return attack_power; }
+int Robot::GetSpeed() const { return speed; }
 int Robot::GetEnergy() const { return energy; }
 int Robot::GetMaxEnergy() const { return max_energy; }
 int Robot::GetExp() const { return exp; }
 int Robot::GetExpToNextRank() const { return exp_to_next_rank; }
 int Robot::GetRank() const { return rank; }
-int Robot::GetSpeed() const { return speed; }
 
 void Robot::ChangeHp(int amount) {
     hp = std::clamp(hp + amount, 0, max_hp);
@@ -50,10 +50,6 @@ void Robot::CheckRankUp() {
         exp -= exp_to_next_rank;
         exp_to_next_rank *= 2;
     }
-}
-
-void Robot::RestoreEnergy() {
-    this->ChangeEnergy(10);
 }
 
 void Robot::Interact(Robot* other) {

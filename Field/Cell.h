@@ -17,12 +17,12 @@ public:
     Terrain GetTerrain() const;
     bool IsWalkable() const;
     bool IsVisible() const;
-    bool HasRobot() const;
+
+    void SetTerrain(Terrain terrain);
+    void SetVisible(bool visible);
 
     Robot* GetRobot() const;
-
-    void SetTerrain(Terrain p_terrain);
-    void SetVisible(bool p_visible);
+    bool HasRobot() const;
     void SetRobot(Robot* other);
     void RemoveRobot();
 };

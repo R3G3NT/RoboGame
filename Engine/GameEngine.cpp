@@ -51,7 +51,8 @@ void GameEngine::MoveRobot(int from_x, int from_y, int dx, int dy) {
             }
             moving_robot->x = x;
             moving_robot->y = y;
-        } else { 
+        } 
+        else { 
             break; 
         }
 
@@ -95,7 +96,7 @@ void GameEngine::HandlePlayerTurn() {
             dx = 1;
             break;
         case '\n':
-            player_ptr->RestoreEnergy();
+            player_ptr->ChangeEnergy(10);
             break;
         case 'q': case 'Q':
             Visualizer::Shutdown();
@@ -197,7 +198,7 @@ void GameEngine::Run() {
         UpdateVisibility();
 
         for (auto& robot : robots) {
-            robot->RestoreEnergy();
+            robot->ChangeEnergy(10);
         }
     }
 

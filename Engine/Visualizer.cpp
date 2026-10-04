@@ -23,20 +23,27 @@ void Visualizer::Draw(Field& field) {
 
             if (!cell.IsVisible()) {
                 printw(".");
-            } else if (cell.GetTerrain() == Terrain::Wall) {
+            } 
+            else if (cell.GetTerrain() == Terrain::Wall) {
                 printw("#");
-            } else if (cell.HasRobot()) {
+            } 
+            else if (cell.HasRobot()) {
                 Robot* robot = cell.GetRobot();
+                
                 if (robot->GetType() == Robot::Type::Player) {
                     printw("R");
-                } else if (robot->GetType() == Robot::Type::Friend) {
+                } 
+                else if (robot->GetType() == Robot::Type::Friend) {
                     printw("F");
-                } else if (robot->GetType() == Robot::Type::Enemy) {
+                } 
+                else if (robot->GetType() == Robot::Type::Enemy) {
                     printw("E");
                 }
-            } else if (cell.GetTerrain() == Terrain::Swamp) {
+            } 
+            else if (cell.GetTerrain() == Terrain::Swamp) {
                 printw("~");
-            } else {
+            } 
+            else {
                 printw(" ");
             }
         }
