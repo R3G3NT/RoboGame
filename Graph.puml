@@ -1,0 +1,124 @@
+@startuml classes
+
+class Robot {
+    - name : std::string
+    - type : Type
+    - hp : int
+    - max_hp : int
+    - attack_power : int
+    - speed : int
+    - energy : int
+    - max_energy : int
+    - exp : int
+    - exp_to_next_rank : int
+    - rank : int
+    + x : int
+    + y : int
+    
+    + Robot(name : std::string, type : Type,
+            hp : int, attack : int,
+            energy : int, speed : int)
+    + GetName() : std::string
+    + GetType() : Type
+    + GetHp() : int
+    + GetMaxHp() : int
+    + GetAttackPower() : int
+    + GetSpeed() : int
+    + GetEnergy() : int
+    + GetMaxEnergy() : int
+    + GetExp() : int
+    + GetExpToNextRank() : int
+    + GetRank() : int
+    + ChangeHp(amount : int) : void
+    + ChangeEnergy(amount : int) : void
+    + ChangeSpeed(amount : int) : void
+    + AddExp(amount : int) : void
+    + Interact(other : Robot*) : void
+    - CheckRankUp() : void
+}
+
+enum Type <<enumeration>> {
+    Player
+    Friend
+    Enemy
+}
+
+enum Prices <<enumeration>> {
+    Attack = 20
+    Heal = 20
+}
+
+class Cell {
+    - terrain : Terrain
+    - visible : bool
+    - robot : Robot*
+    
+    + Cell(p_terrain : Terrain)
+    + GetTerrain() : Terrain
+    + IsWalkable() : bool
+    + IsVisible() : bool
+    + SetTerrain(terrain : Terrain) : void
+    + SetVisible(visible : bool) : void
+    + GetRobot() : Robot*
+    + HasRobot() : bool
+    + SetRobot(other : Robot*) : void
+    + RemoveRobot() : void
+}
+
+enum Terrain <<enumeration>> {
+    Floor
+    Wall
+    Swamp
+}
+
+class Field {
+    - width : int
+    - height : int
+    - grid : std::vector<std::vector<Cell>>
+    
+    + Field(width : int, height : int)
+    + GetWidth() : int
+    + GetHeight() : int
+    + GetCell(x : int, y : int) : Cell&
+    + IsWalkable(x : int, y : int) : bool
+    + ClearVisibility() : void
+}
+
+class GameEngine {
+    - robots : std::vector<std::unique_ptr<Robot>>
+    - player_ptr : Robot*
+    - player_x : int
+    - player_y : int
+    + field : Field
+    
+    + GameEngine(width : int, height : int)
+    + SpawnRobot(robot : std::unique_ptr<Robot>,
+                 x : int, y : int) : void
+    + MoveRobot(from_x : int, from_y : int,
+                dx : int, dy : int) : void
+    + UpdateVisibility() : void
+    + LoadLevel(level : std::vector<std::string>&) : void
+    + Run() : void
+    - HandlePlayerTurn() : void
+    - HandleEnemiesTurn() : void
+    - CleanDeadRobots() : void
+}
+
+class Visualizer <<static utility>> {
+    + {static} InitScreen() : void
+    + {static} Shutdown() : void
+    + {static} Draw(field : Field&) : void
+    + {static} DrawStatus(robot : Robot*) : void
+}
+
+' Связи
+Robot      --> Type       : uses 
+Robot      ..> Prices     : uses
+Cell       --> Robot      : holds ptr 
+Cell       --> Terrain    : uses  
+Field      *-- Cell       : contains 
+GameEngine *--  Field     : owns 
+GameEngine o-- Robot      : manages  
+GameEngine ..> Visualizer : uses 
+
+@enduml
