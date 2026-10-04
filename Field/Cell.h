@@ -3,16 +3,17 @@
 
 class Robot;
 
-enum class Terrain { Floor, Wall, Swamp };
-
 class Cell {
+public:
+    enum class Terrain { Floor, Wall, Swamp };
+
 private:
     Terrain terrain = Terrain::Floor;
     bool visible = false; 
     Robot* robot = nullptr;
 
 public:
-    Cell(Terrain p_terrain);
+    Cell(Terrain terrain);
 
     Terrain GetTerrain() const;
     bool IsWalkable() const;

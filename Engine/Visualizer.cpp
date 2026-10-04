@@ -24,7 +24,7 @@ void Visualizer::Draw(Field& field) {
             if (!cell.IsVisible()) {
                 printw(".");
             } 
-            else if (cell.GetTerrain() == Terrain::Wall) {
+            else if (cell.GetTerrain() == Cell::Terrain::Wall) {
                 printw("#");
             } 
             else if (cell.HasRobot()) {
@@ -40,7 +40,7 @@ void Visualizer::Draw(Field& field) {
                     printw("E");
                 }
             } 
-            else if (cell.GetTerrain() == Terrain::Swamp) {
+            else if (cell.GetTerrain() == Cell::Terrain::Swamp) {
                 printw("~");
             } 
             else {

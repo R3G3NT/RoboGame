@@ -3,7 +3,7 @@
 
 Cell::Cell(Terrain terrain) : terrain(terrain) {}
 
-Terrain Cell::GetTerrain() const {
+Cell::Terrain Cell::GetTerrain() const {
     return terrain;
 }
 

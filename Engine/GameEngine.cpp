@@ -59,7 +59,7 @@ void GameEngine::MoveRobot(int from_x, int from_y, int dx, int dy) {
         budget--;
     }
 
-    if (field.GetCell(moving_robot->x, moving_robot->y).GetTerrain() == Terrain::Swamp) {
+    if (field.GetCell(moving_robot->x, moving_robot->y).GetTerrain() == Cell::Terrain::Swamp) {
         moving_robot->ChangeSpeed(-1);
     }
 }
@@ -151,10 +151,10 @@ void GameEngine::LoadLevel(std::vector<std::string>& level) {
             switch (c)
             {
                 case '#':
-                    field.GetCell(x, y).SetTerrain(Terrain::Wall);
+                    field.GetCell(x, y).SetTerrain(Cell::Terrain::Wall);
                     break;
                 case '~':
-                    field.GetCell(x, y).SetTerrain(Terrain::Swamp);
+                    field.GetCell(x, y).SetTerrain(Cell::Terrain::Swamp);
                     break;
                 case 'R':
                     SpawnRobot(

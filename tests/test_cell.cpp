@@ -3,21 +3,21 @@
 #include <gtest/gtest.h>
 
 TEST(Cell, DefaultIsFloorAndWalkable) {
-    Cell c(Terrain::Floor);
+    Cell c(Cell::Terrain::Floor);
 
-    EXPECT_EQ(c.GetTerrain(), Terrain::Floor);
+    EXPECT_EQ(c.GetTerrain(), Cell::Terrain::Floor);
     EXPECT_TRUE(c.IsWalkable());
     EXPECT_FALSE(c.HasRobot());
     EXPECT_FALSE(c.IsVisible());
 }
 
 TEST(Cell, WallIsNotWalkable) {
-    Cell c(Terrain::Wall);
+    Cell c(Cell::Terrain::Wall);
     EXPECT_FALSE(c.IsWalkable());
 }
 
 TEST(Cell, RobotBlocksWalkable) {
-    Cell c(Terrain::Floor);
+    Cell c(Cell::Terrain::Floor);
     Robot r("A", Robot::Type::Player, 100, 10, 10, 1);
 
     c.SetRobot(&r);
@@ -30,7 +30,7 @@ TEST(Cell, RobotBlocksWalkable) {
 }
 
 TEST(Cell, VisibilityCanBeChanged) {
-    Cell c(Terrain::Floor);
+    Cell c(Cell::Terrain::Floor);
 
     c.SetVisible(true);
     EXPECT_TRUE(c.IsVisible());

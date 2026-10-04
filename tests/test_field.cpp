@@ -17,14 +17,14 @@ TEST(Field, CellsStartAsFloor) {
     Field f(20, 10);
     for (int y = 0; y < 10; ++y) {
         for (int x = 0; x < 20; ++x) {
-            EXPECT_EQ(f.GetCell(x, y).GetTerrain(), Terrain::Floor);
+            EXPECT_EQ(f.GetCell(x, y).GetTerrain(), Cell::Terrain::Floor);
         }
     }
 }
 
 TEST(Field, WallBlocksWalkable) {
     Field f(20, 10);
-    f.GetCell(5, 5).SetTerrain(Terrain::Wall);
+    f.GetCell(5, 5).SetTerrain(Cell::Terrain::Wall);
 
     EXPECT_FALSE(f.IsWalkable(5, 5));
     EXPECT_TRUE(f.IsWalkable(5, 6));

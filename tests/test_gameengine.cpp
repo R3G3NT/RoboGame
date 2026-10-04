@@ -16,7 +16,7 @@ TEST(GameEngine, SpawnRobotOnEmptyCell) {
 
 TEST(GameEngine, SpawnRobotOnWallDoesNothing) {
     GameEngine engine(20, 10);
-    engine.field.GetCell(5, 5).SetTerrain(Terrain::Wall);
+    engine.field.GetCell(5, 5).SetTerrain(Cell::Terrain::Wall);
 
     auto robot = std::make_unique<Robot>(
         "P", Robot::Type::Player, 100, 20, 60, 2);
@@ -43,7 +43,7 @@ TEST(GameEngine, LoadLevelParsesSymbols) {
               Robot::Type::Enemy);
     EXPECT_EQ(engine.field.GetCell(1, 3).GetRobot()->GetType(),
               Robot::Type::Friend);
-    EXPECT_EQ(engine.field.GetCell(4, 2).GetTerrain(), Terrain::Swamp);
+    EXPECT_EQ(engine.field.GetCell(4, 2).GetTerrain(), Cell::Terrain::Swamp);
 }
 
 TEST(GameEngine, MoveRobotMovesPlayer) {
@@ -63,7 +63,7 @@ TEST(GameEngine, MoveRobotMovesPlayer) {
 
 TEST(GameEngine, MoveRobotStopsAtWall) {
     GameEngine engine(20, 10);
-    engine.field.GetCell(7, 5).SetTerrain(Terrain::Wall);
+    engine.field.GetCell(7, 5).SetTerrain(Cell::Terrain::Wall);
 
     auto player = std::make_unique<Robot>(
         "P", Robot::Type::Player, 100, 20, 60, 2);

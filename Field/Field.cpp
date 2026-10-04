@@ -7,7 +7,7 @@ Field::Field(int width, int height) {
     }
     this->width = width;
     this->height = height;
-    grid.resize(height, std::vector<Cell>(width, Cell(Terrain::Floor)));
+    grid.resize(height, std::vector<Cell>(width, Cell(Cell::Terrain::Floor)));
 }
 
 int Field::GetWidth() const { return width; }
