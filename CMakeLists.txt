@@ -1,23 +1,36 @@
-cmake_minimum_required(VERSION 4.3)
+cmake_minimum_required(VERSION 3.16)
 project(RoboGame)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Curses REQUIRED)
+find_package(GTest REQUIRED)
 
-add_executable(RoboGame main.cpp
-        Robot/Robot.h
+# Игровая логика отдельной библиотекой
+add_library(robogame_core STATIC
         Robot/Robot.cpp
-        Field/Field.h
         Field/Field.cpp
         Field/Cell.cpp
-        Field/Cell.h
-        Robot/Prices.h
         Engine/Visualizer.cpp
-        Engine/Visualizer.h
         Engine/GameEngine.cpp
-        Engine/GameEngine.h
 )
+target_include_directories(robogame_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(robogame_core PRIVATE ${CURSES_INCLUDE_DIRS})
+target_link_libraries(robogame_core PUBLIC ${CURSES_LIBRARIES})
 
-target_include_directories(RoboGame PRIVATE ${CURSES_INCLUDE_DIRS})
-target_link_libraries(RoboGame PRIVATE ${CURSES_LIBRARIES})
+# Сама игра
+add_executable(RoboGame main.cpp)
+target_link_libraries(RoboGame PRIVATE robogame_core)
+
+# Тесты
+enable_testing()
+add_executable(robogame_tests
+        tests/test_robot.cpp
+        tests/test_cell.cpp
+        tests/test_field.cpp
+        tests/test_gameengine.cpp
+)
+target_link_libraries(robogame_tests PRIVATE robogame_core GTest::gtest_main)
+include(GoogleTest)
+gtest_discover_tests(robogame_tests)

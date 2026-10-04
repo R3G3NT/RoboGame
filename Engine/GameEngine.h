@@ -23,7 +23,7 @@ public:
     GameEngine(int width, int height);
 
     void SpawnRobot(std::unique_ptr<Robot> robot, int x, int y);
-    void MoveRobot(int fromX, int fromY, int toX, int toY);
+    void MoveRobot(int from_x, int from_y, int dx, int dy);
     void UpdateVisibility();
     void LoadLevel(std::vector<std::string>& level);
     void Run();
