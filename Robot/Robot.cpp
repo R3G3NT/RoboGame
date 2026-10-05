@@ -58,20 +58,16 @@ void Robot::Interact(Robot* other) {
         (this->type == Type::Enemy  && other->type == Type::Player);
 
     if (is_enemy) {
-        if (this->energy < static_cast<int>(Config::AttackCost)) {
-            return;
+        if (this->energy > static_cast<int>(Config::AttackCost)) {
+            other->ChangeHp(-this->attack_power);
+            this->ChangeEnergy(-static_cast<int>(Config::AttackCost));
+            this->AddExp(5);
         }
-
-        other->ChangeHp(-this->attack_power);
-        this->ChangeEnergy(-static_cast<int>(Config::AttackCost));
-        this->AddExp(5);
     }
     else if (this->type == Type::Player && other->type == Type::Friend) {
         if (other->energy < static_cast<int>(Config::HealCost)) { 
-            return;
+            this->ChangeHp(static_cast<int>(Config::HealAmount));
+            other->ChangeEnergy(-static_cast<int>(Config::HealCost));
         }
-
-        this->ChangeHp(static_cast<int>(Config::HealAmount));
-        other->ChangeEnergy(-static_cast<int>(Config::HealCost));
     }
 }

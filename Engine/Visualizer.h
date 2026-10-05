@@ -10,6 +10,7 @@ public:
     static void Shutdown();
     static void Draw(Field& field);
     static void DrawStatus(Robot* robot);
+    static void UpdateScreen(Field& field, int current_move, Robot* player_ptr);
 };
 
 #endif

@@ -21,12 +21,17 @@ void GameEngine::SpawnRobot(std::unique_ptr<Robot> robot, int x, int y) {
 }
 
 void GameEngine::MoveRobot(int from_x, int from_y, int dx, int dy) {
-    if (!field.GetCell(from_x, from_y).HasRobot()) return;
-    Robot* moving_robot = field.GetCell(from_x, from_y).GetRobot();
-    int budget = moving_robot->GetSpeed();
+    if (!field.GetCell(from_x, from_y).HasRobot()) {
+        return;
+    }
 
+    Robot* moving_robot = field.GetCell(from_x, from_y).GetRobot();
+    int speed = moving_robot->GetSpeed();
+    if (moving_robot == player_ptr) {
+        speed = 1;
+    }
     int x = from_x, y = from_y;
-    while (budget > 0) {
+    while (speed != 0) {
         x += dx;
         y += dy;
 
@@ -50,8 +55,7 @@ void GameEngine::MoveRobot(int from_x, int from_y, int dx, int dy) {
         else { 
             break; 
         }
-
-        budget--;
+        speed--;
     }
 
     if (field.GetCell(moving_robot->x, moving_robot->y).GetTerrain() == Cell::Terrain::Swamp) {
@@ -98,8 +102,30 @@ void GameEngine::HandlePlayerTurn() {
             exit(0);
     }
 
-    if (dx != 0 || dy != 0) {
+    int budget = player_ptr->GetSpeed();
+    while ((dx != 0 || dy != 0) && budget != 0) {
         MoveRobot(player_ptr->x, player_ptr->y, dx, dy);
+        budget--;
+        UpdateVisibility();
+        Visualizer::UpdateScreen(field, current_move, player_ptr);
+
+        dx = dy = 0;
+        if (budget != 0) {
+            ch = getch();
+            switch (ch) {
+                case 'w': case 'W': case KEY_UP:
+                    dy = -1;
+                    break;
+                case 's': case 'S': case KEY_DOWN:
+                    dy = 1;
+                    break;
+                case 'a': case 'A': case KEY_LEFT:
+                    dx = -1;
+                    break;
+                case 'd': case 'D': case KEY_RIGHT:
+                    dx = 1;
+            }
+        }
     }
 }
 
@@ -187,7 +213,6 @@ void GameEngine::LoadLevel(std::vector<std::string>& level) {
                             static_cast<int>(Config::EnemySpeed)), 
                         x, y);
                     e++;
-                    break;
             }
         }
     }
@@ -198,20 +223,12 @@ void GameEngine::Run() {
     UpdateVisibility();
 
     while (player_ptr != nullptr) { // Играем, пока игрок жив
-        erase();
-        Visualizer::Draw(field);
-        printw("\n");
-        printw("=== Move: %d ===\n\n", current_move);
-        Visualizer::DrawStatus(player_ptr);
-        printw("\n");
-        refresh();
+        Visualizer::UpdateScreen(field, current_move, player_ptr);
 
         HandlePlayerTurn();
         CleanDeadRobots();
         HandleEnemiesTurn();
         CleanDeadRobots();
-
-        UpdateVisibility();
 
         for (auto& robot : robots) {
             robot->ChangeEnergy(static_cast<int>(Config::EnergyPerTurn));

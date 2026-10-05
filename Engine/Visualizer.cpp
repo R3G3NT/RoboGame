@@ -61,3 +61,13 @@ void Visualizer::DrawStatus(Robot* robot) {
     printw("EXP: %d/%d\n", robot->GetExp(), robot->GetExpToNextRank());
     printw("POS: (%d, %d)\n", robot->x, robot->y);
 }
+
+void Visualizer::UpdateScreen(Field& field, int current_move, Robot* player_ptr) {
+    erase();
+    Visualizer::Draw(field);
+    printw("\n");
+    printw("=== Move: %d ===\n\n", current_move);
+    Visualizer::DrawStatus(player_ptr);
+    printw("\n");
+    refresh();
+}
