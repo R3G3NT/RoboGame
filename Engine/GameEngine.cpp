@@ -221,7 +221,6 @@ void GameEngine::LoadLevel(std::vector<std::string>& level) {
 }
 
 void GameEngine::Run() {
-    field.ClearVisibility();
     UpdateVisibility();
     Visualizer::UpdateScreen(field, current_move, player_ptr);
 
@@ -250,9 +249,12 @@ void GameEngine::Run() {
             robot->ChangeEnergy(static_cast<int>(Config::EnergyPerTurn));
         }
 
-        Visualizer::UpdateScreen(field, current_move, player_ptr);
-
         current_move++;
+        field.ClearVisibility();
+        UpdateVisibility();
+        if (player_ptr != nullptr) {
+            Visualizer::UpdateScreen(field, current_move, player_ptr);
+        }
     }
 
     erase();

@@ -45,29 +45,29 @@ enum Type <<enumeration>> {
 }
 
 enum Config <<enumeration>> {
-    AttackCost         = 20
-    HealCost           = 20
+    AttackCost
+    HealCost
 
-    HealAmount         = 15
+    HealAmount
 
-    VisibilityRadius   = 3
-    EnergyPerTurn      = 10
-    EnergyPerWait      = 10
+    VisibilityRadius 
+    EnergyPerTurn
+    EnergyPerWait
 
-    PlayerHp           = 100
-    PlayerAttack       = 20
-    PlayerEnergy       = 60
-    PlayerSpeed        = 2
+    PlayerHp
+    PlayerAttack
+    PlayerEnergy
+    PlayerSpeed
 
-    FriendHp           = 30
-    FriendAttack       = 5
-    FriendEnergy       = 20
-    FriendSpeed        = 0
+    FriendHp
+    FriendAttack
+    FriendEnergy
+    FriendSpeed
 
-    EnemyHp            = 50
-    EnemyAttack        = 10
-    EnemyEnergy        = 30
-    EnemySpeed         = 1
+    EnemyHp
+    EnemyAttack
+    EnemyEnergy
+    EnemySpeed
 }
 
 class Cell {

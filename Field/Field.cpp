@@ -24,7 +24,9 @@ bool Field::IsWalkable(int x, int y) const {
 void Field::ClearVisibility() {
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
-            grid[y][x].SetVisible(false);
+            if (grid[y][x].GetTerrain() == Cell::Terrain::Floor) {
+                grid[y][x].SetVisible(false);
+            }
         }
     }
 }
