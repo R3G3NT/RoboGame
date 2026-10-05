@@ -11,8 +11,6 @@ private:
     std::vector<std::unique_ptr<Robot>> robots;
 
     Robot* player_ptr = nullptr;
-    int player_x = 0;
-    int player_y = 0;
 
     void HandlePlayerTurn();
     void HandleEnemiesTurn();

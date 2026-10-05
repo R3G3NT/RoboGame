@@ -14,7 +14,7 @@ private:
     int attack_power;
     int speed;
     int energy, max_energy;
-    int exp, exp_to_next_rank;
+    int exp, exp_for_next_rank;
     int rank = 1;
 
 public:

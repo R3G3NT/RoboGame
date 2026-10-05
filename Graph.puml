@@ -88,8 +88,6 @@ class Field {
 class GameEngine {
     - robots : std::vector<std::unique_ptr<Robot>>
     - player_ptr : Robot*
-    - player_x : int
-    - player_y : int
     + field : Field
     
     + GameEngine(width : int, height : int)

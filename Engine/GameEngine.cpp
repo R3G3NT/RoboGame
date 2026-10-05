@@ -9,8 +9,6 @@ void GameEngine::SpawnRobot(std::unique_ptr<Robot> robot, int x, int y) {
     if (field.IsWalkable(x, y)) {
         if (robot->GetType() == Robot::Type::Player) {
             player_ptr = robot.get();
-            player_x = x;
-            player_y = y;
         }
 
         robot->x = x;
@@ -38,17 +36,13 @@ void GameEngine::MoveRobot(int from_x, int from_y, int dx, int dy) {
         if (target_cell.HasRobot()) {
             moving_robot->Interact(target_cell.GetRobot());
             return;
-        }        
+        }
 
         if (field.IsWalkable(x, y)) {
             field.GetCell(from_x, from_y).RemoveRobot();
             target_cell.SetRobot(moving_robot);
             from_x = x;
             from_y = y;
-            if (moving_robot == player_ptr) {
-                player_x = x;
-                player_y = y;
-            }
             moving_robot->x = x;
             moving_robot->y = y;
         } 
@@ -104,7 +98,7 @@ void GameEngine::HandlePlayerTurn() {
     }
 
     if (dx != 0 || dy != 0) {
-        MoveRobot(player_x, player_y, dx, dy);
+        MoveRobot(player_ptr->x, player_ptr->y, dx, dy);
     }
 }
 
@@ -115,10 +109,18 @@ void GameEngine::HandleEnemiesTurn() {
         if (robots[i]->GetType() == Robot::Type::Enemy) {
             int dx = 0, dy = 0;
 
-            if (player_x > robots[i]->x) dx = 1;
-            else if (player_x < robots[i]->x) dx = -1;
-            else if (player_y > robots[i]->y) dy = 1;
-            else if (player_y < robots[i]->y) dy = -1;
+            if (player_ptr->x > robots[i]->x) { 
+                dx = 1;
+            }
+            else if (player_ptr->x < robots[i]->x) { 
+                dx = -1;
+            }
+            else if (player_ptr->y > robots[i]->y) { 
+                dy = 1;
+            }
+            else if (player_ptr->y < robots[i]->y) { 
+                dy = -1;
+            }
 
             MoveRobot(robots[i]->x, robots[i]->y, dx, dy);
         }
