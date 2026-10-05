@@ -44,9 +44,30 @@ enum Type <<enumeration>> {
     Enemy
 }
 
-enum Prices <<enumeration>> {
-    Attack = 20
-    Heal = 20
+enum Config <<enumeration>> {
+    AttackCost         = 20
+    HealCost           = 20
+
+    HealAmount         = 15
+
+    VisibilityRadius   = 3
+    EnergyPerTurn      = 10
+    EnergyPerWait      = 10
+
+    PlayerHp           = 100
+    PlayerAttack       = 20
+    PlayerEnergy       = 60
+    PlayerSpeed        = 2
+
+    FriendHp           = 30
+    FriendAttack       = 5
+    FriendEnergy       = 20
+    FriendSpeed        = 0
+
+    EnemyHp            = 50
+    EnemyAttack        = 10
+    EnemyEnergy        = 30
+    EnemySpeed         = 1
 }
 
 class Cell {
@@ -112,12 +133,13 @@ class Visualizer <<static utility>> {
 
 ' Связи
 Robot      --> Type       : uses 
-Robot      ..> Prices     : uses
+Robot      ..> Config     : uses
 Cell       --> Robot      : holds ptr 
 Cell       --> Terrain    : uses  
 Field      *-- Cell       : contains 
 GameEngine *--  Field     : owns 
 GameEngine o-- Robot      : manages  
 GameEngine ..> Visualizer : uses 
+GameEngine ..> Config     : uses
 
 @enduml
