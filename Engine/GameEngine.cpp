@@ -1,5 +1,6 @@
 #include "GameEngine.h"
 #include "Visualizer.h"
+#include "../Engine/Config.h"
 #include <ncurses.h>
 #include <algorithm>
 
@@ -90,7 +91,7 @@ void GameEngine::HandlePlayerTurn() {
             dx = 1;
             break;
         case '\n':
-            player_ptr->ChangeEnergy(10);
+            player_ptr->ChangeEnergy(static_cast<int>(Config::EnergyPerWait));
             break;
         case 'q': case 'Q':
             Visualizer::Shutdown();
@@ -130,7 +131,7 @@ void GameEngine::HandleEnemiesTurn() {
 void GameEngine::UpdateVisibility() {
     if (!player_ptr) return;
 
-    int radius = 3;
+    int radius = static_cast<int>(Config::VisibilityRadius);
     for (int dy = -radius; dy <= radius; dy++) {
         for (int dx = -radius; dx <= radius; dx++) {
             int x = player_ptr->x + dx;
@@ -160,18 +161,30 @@ void GameEngine::LoadLevel(std::vector<std::string>& level) {
                     break;
                 case 'R':
                     SpawnRobot(
-                        std::make_unique<Robot>("Optimus", Robot::Type::Player, 100, 20, 60, 2), 
+                        std::make_unique<Robot>("Optimus", Robot::Type::Player, 
+                            static_cast<int>(Config::PlayerHp), 
+                            static_cast<int>(Config::PlayerAttack), 
+                            static_cast<int>(Config::PlayerEnergy), 
+                            static_cast<int>(Config::PlayerSpeed)), 
                         x, y);
                     break;
                 case 'F':
                     SpawnRobot(
-                        std::make_unique<Robot>("Friend" + std::to_string(f), Robot::Type::Friend, 30, 5, 20, 0), 
+                        std::make_unique<Robot>("Friend" + std::to_string(f), Robot::Type::Friend, 
+                            static_cast<int>(Config::FriendHp), 
+                            static_cast<int>(Config::FriendAttack), 
+                            static_cast<int>(Config::FriendEnergy), 
+                            static_cast<int>(Config::FriendSpeed)),  
                         x, y);
                     f++;
                     break;
                 case 'E':
                     SpawnRobot(
-                        std::make_unique<Robot>("Enemy" + std::to_string(e), Robot::Type::Enemy, 50, 10, 30, 1), 
+                        std::make_unique<Robot>("Enemy" + std::to_string(e), Robot::Type::Enemy,
+                            static_cast<int>(Config::EnemyHp), 
+                            static_cast<int>(Config::EnemyAttack), 
+                            static_cast<int>(Config::EnemyEnergy), 
+                            static_cast<int>(Config::EnemySpeed)), 
                         x, y);
                     e++;
                     break;
@@ -200,7 +213,7 @@ void GameEngine::Run() {
         UpdateVisibility();
 
         for (auto& robot : robots) {
-            robot->ChangeEnergy(10);
+            robot->ChangeEnergy(static_cast<int>(Config::EnergyPerTurn));
         }
     }
 

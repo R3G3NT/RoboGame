@@ -1,5 +1,5 @@
 #include "Robot.h"
-#include "Prices.h"
+#include "../Engine/Config.h"
 #include <algorithm>
 
 Robot::Robot(std::string name, Type type, int hp, int attack, int energy, int speed)
@@ -58,16 +58,20 @@ void Robot::Interact(Robot* other) {
         (this->type == Type::Enemy  && other->type == Type::Player);
 
     if (is_enemy) {
-        if (this->energy < static_cast<int>(Prices::Attack)) return;
+        if (this->energy < static_cast<int>(Config::AttackCost)) {
+            return;
+        }
 
         other->ChangeHp(-this->attack_power);
-        this->ChangeEnergy(-static_cast<int>(Prices::Attack));
+        this->ChangeEnergy(-static_cast<int>(Config::AttackCost));
         this->AddExp(5);
     }
     else if (this->type == Type::Player && other->type == Type::Friend) {
-        if (other->energy < static_cast<int>(Prices::Heal)) return;
+        if (other->energy < static_cast<int>(Config::HealCost)) { 
+            return;
+        }
 
-        this->ChangeHp(15);
-        other->ChangeEnergy(-static_cast<int>(Prices::Heal));
+        this->ChangeHp(static_cast<int>(Config::HealAmount));
+        other->ChangeEnergy(-static_cast<int>(Config::HealCost));
     }
 }
