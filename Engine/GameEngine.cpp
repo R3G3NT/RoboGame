@@ -20,9 +20,9 @@ void GameEngine::SpawnRobot(std::unique_ptr<Robot> robot, int x, int y) {
     }
 }
 
-void GameEngine::MoveRobot(int from_x, int from_y, int dx, int dy) {
+bool GameEngine::MoveRobot(int from_x, int from_y, int dx, int dy) {
     if (!field.GetCell(from_x, from_y).HasRobot()) {
-        return;
+        return false;
     }
 
     Robot* moving_robot = field.GetCell(from_x, from_y).GetRobot();
@@ -41,7 +41,7 @@ void GameEngine::MoveRobot(int from_x, int from_y, int dx, int dy) {
         Cell& target_cell = field.GetCell(x, y);
         if (target_cell.HasRobot()) {
             moving_robot->Interact(target_cell.GetRobot());
-            return;
+            return true;
         }
 
         if (field.IsWalkable(x, y)) {
@@ -61,6 +61,8 @@ void GameEngine::MoveRobot(int from_x, int from_y, int dx, int dy) {
     if (field.GetCell(moving_robot->x, moving_robot->y).GetTerrain() == Cell::Terrain::Swamp) {
         moving_robot->ChangeSpeed(-1);
     }
+
+    return false;
 }
 
 void GameEngine::CleanDeadRobots() {
@@ -78,9 +80,7 @@ void GameEngine::CleanDeadRobots() {
 
 void GameEngine::HandlePlayerTurn() {
     int ch = getch();
-
     int dx = 0, dy = 0;
-
     switch (ch) {
         case 'w': case 'W': case KEY_UP:
             dy = -1;
@@ -104,13 +104,13 @@ void GameEngine::HandlePlayerTurn() {
 
     int budget = player_ptr->GetSpeed();
     while ((dx != 0 || dy != 0) && budget != 0) {
-        MoveRobot(player_ptr->x, player_ptr->y, dx, dy);
+        bool was_interacted = MoveRobot(player_ptr->x, player_ptr->y, dx, dy);
         budget--;
         UpdateVisibility();
         Visualizer::UpdateScreen(field, current_move, player_ptr);
 
         dx = dy = 0;
-        if (budget != 0) {
+        if (budget != 0 && !was_interacted) {
             ch = getch();
             switch (ch) {
                 case 'w': case 'W': case KEY_UP:
@@ -155,7 +155,9 @@ void GameEngine::HandleEnemiesTurn() {
 }
 
 void GameEngine::UpdateVisibility() {
-    if (!player_ptr) return;
+    if (!player_ptr) {
+        return;
+    }
 
     int radius = static_cast<int>(Config::VisibilityRadius);
     for (int dy = -radius; dy <= radius; dy++) {
@@ -221,26 +223,41 @@ void GameEngine::LoadLevel(std::vector<std::string>& level) {
 void GameEngine::Run() {
     field.ClearVisibility();
     UpdateVisibility();
+    Visualizer::UpdateScreen(field, current_move, player_ptr);
 
     while (player_ptr != nullptr) { // Играем, пока игрок жив
-        Visualizer::UpdateScreen(field, current_move, player_ptr);
-
         HandlePlayerTurn();
         CleanDeadRobots();
         HandleEnemiesTurn();
         CleanDeadRobots();
 
+        bool no_enemy = true;
+        for (int i = 0; i < robots.size(); i++) {
+            if (robots[i]->GetType() == Robot::Type::Enemy) {
+                no_enemy = false;
+                break;
+            }
+        }
+        if (no_enemy) {
+            erase();
+            Visualizer::Draw(field);
+            printw("\nYou destroyed all the enemies! You WON :)\nPress any key...\n");
+            getch();
+            return;
+        }
+
         for (auto& robot : robots) {
             robot->ChangeEnergy(static_cast<int>(Config::EnergyPerTurn));
         }
+
+        Visualizer::UpdateScreen(field, current_move, player_ptr);
 
         current_move++;
     }
 
     erase();
     Visualizer::Draw(field);
-    printw("\n");
-    printw("GAME OVER! Your robot has been destroyed. Press any key...");
+    printw("\nGAME OVER! Your robot has been destroyed :(\nPress any key...");
     refresh();
     getch();
 }
