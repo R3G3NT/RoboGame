@@ -8,8 +8,8 @@
 
 class GameEngine {
 private:
+    int current_move = 1; // Количество ходов
     std::vector<std::unique_ptr<Robot>> robots;
-
     Robot* player_ptr = nullptr;
 
     void HandlePlayerTurn();

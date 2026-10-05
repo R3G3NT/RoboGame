@@ -201,6 +201,7 @@ void GameEngine::Run() {
         erase();
         Visualizer::Draw(field);
         printw("\n");
+        printw("=== Move: %d ===\n\n", current_move);
         Visualizer::DrawStatus(player_ptr);
         printw("\n");
         refresh();
@@ -215,6 +216,8 @@ void GameEngine::Run() {
         for (auto& robot : robots) {
             robot->ChangeEnergy(static_cast<int>(Config::EnergyPerTurn));
         }
+
+        current_move++;
     }
 
     erase();
