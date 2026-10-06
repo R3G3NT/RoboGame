@@ -10,7 +10,7 @@ enum class Config {
     HealAmount         = 15,
 
     // Игровой цикл
-    VisibilityRadius   = 4,
+    VisibilityRadius   = 3,
     EnergyPerTurn      = 10,
     EnergyPerWait      = 10,
 

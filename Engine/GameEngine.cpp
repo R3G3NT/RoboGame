@@ -106,6 +106,7 @@ void GameEngine::HandlePlayerTurn() {
     while ((dx != 0 || dy != 0) && budget != 0) {
         bool was_interacted = MoveRobot(player_ptr->x, player_ptr->y, dx, dy);
         budget--;
+        field.ClearVisibility();
         UpdateVisibility();
         Visualizer::UpdateScreen(field, current_move, player_ptr);
 
@@ -161,7 +162,7 @@ void GameEngine::UpdateVisibility() {
 
     int radius = static_cast<int>(Config::VisibilityRadius);
     for (int dy = -radius; dy <= radius; dy++) {
-        for (int dx = -radius; dx <= radius; dx++) {
+        for (int dx = -radius - 3; dx <= radius + 3; dx++) {
             int x = player_ptr->x + dx;
             int y = player_ptr->y + dy;
 
