@@ -1,5 +1,6 @@
 @startuml classes
 left to right direction
+skinparam linetype ortho
 
 class Robot {
     - name : std::string
@@ -11,11 +12,11 @@ class Robot {
     - energy : int
     - max_energy : int
     - exp : int
-    - exp_to_next_rank : int
+    - exp_for_next_rank : int
     - rank : int
     + x : int
     + y : int
-    
+    __
     + Robot(name : std::string, type : Type,
             hp : int, attack : int,
             energy : int, speed : int)
@@ -38,43 +39,17 @@ class Robot {
     - CheckRankUp() : void
 }
 
-enum Type <<enumeration>> {
+enum "Robot::Type" as RobotType <<enumeration>> {
     Player
     Friend
     Enemy
-}
-
-enum Config <<enumeration>> {
-    AttackCost
-    HealCost
-
-    HealAmount
-
-    VisibilityRadius 
-    EnergyPerTurn
-    EnergyPerWait
-
-    PlayerHp
-    PlayerAttack
-    PlayerEnergy
-    PlayerSpeed
-
-    FriendHp
-    FriendAttack
-    FriendEnergy
-    FriendSpeed
-
-    EnemyHp
-    EnemyAttack
-    EnemyEnergy
-    EnemySpeed
 }
 
 class Cell {
     - terrain : Terrain
     - visible : bool
     - robot : Robot*
-    
+    __
     + Cell(p_terrain : Terrain)
     + GetTerrain() : Terrain
     + IsWalkable() : bool
@@ -87,7 +62,7 @@ class Cell {
     + RemoveRobot() : void
 }
 
-enum Terrain <<enumeration>> {
+enum "Cell::Terrain" as CellTerrain <<enumeration>> {
     Floor
     Wall
     Swamp
@@ -97,7 +72,7 @@ class Field {
     - width : int
     - height : int
     - grid : std::vector<std::vector<Cell>>
-    
+    __
     + Field(width : int, height : int)
     + GetWidth() : int
     + GetHeight() : int
@@ -109,13 +84,14 @@ class Field {
 class GameEngine {
     - robots : std::vector<std::unique_ptr<Robot>>
     - player_ptr : Robot*
+    - current_move : int
     + field : Field
-    
+    __
     + GameEngine(width : int, height : int)
     + SpawnRobot(robot : std::unique_ptr<Robot>,
                  x : int, y : int) : void
     + MoveRobot(from_x : int, from_y : int,
-                dx : int, dy : int) : void
+                dx : int, dy : int) : bool
     + UpdateVisibility() : void
     + LoadLevel(level : std::vector<std::string>&) : void
     + Run() : void
@@ -129,17 +105,39 @@ class Visualizer <<static utility>> {
     + {static} Shutdown() : void
     + {static} Draw(field : Field&) : void
     + {static} DrawStatus(robot : Robot*) : void
+    + {static} UpdateScreen(field : Field&, current_move : int,
+                            player_ptr : Robot*) : void
 }
 
-' Связи
-Robot      --> Type       : uses 
-Robot      ..> Config     : uses
-Cell       --> Robot      : holds ptr 
-Cell       --> Terrain    : uses  
-Field      *-- Cell       : contains 
-GameEngine *--  Field     : owns 
-GameEngine o-- Robot      : manages  
-GameEngine ..> Visualizer : uses 
-GameEngine ..> Config     : uses
+enum Config <<enumeration>> {
+    AttackCost
+    HealCost
+    HealAmount
+    VisibilityRadius
+    EnergyPerTurn
+    EnergyPerWait
+    PlayerHp
+    PlayerAttack
+    PlayerEnergy
+    PlayerSpeed
+    FriendHp
+    FriendAttack
+    FriendEnergy
+    FriendSpeed
+    EnemyHp
+    EnemyAttack
+    EnemyEnergy
+    EnemySpeed
+}
+
+GameEngine *-- Field        : owns
+GameEngine o-- Robot        : manages
+Field      *-- Cell         : contains
+Cell       --> Robot        : holds ptr
+Robot      --> RobotType    : uses
+Cell       --> CellTerrain  : uses 
+Robot      ..> Config       : uses
+GameEngine ..> Config       : uses
+GameEngine ..> Visualizer   : uses
 
 @enduml
