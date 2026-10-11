@@ -125,6 +125,10 @@ void GameEngine::HandlePlayerTurn() {
                     break;
                 case 'd': case 'D': case KEY_RIGHT:
                     dx = 1;
+                    break;
+                case 'q': case 'Q':
+                    Visualizer::Shutdown();
+                    exit(0);
             }
         }
     }
