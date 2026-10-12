@@ -102,16 +102,15 @@ void GameEngine::HandlePlayerTurn() {
             exit(0);
     }
 
-    int budget = player_ptr->GetSpeed();
-    while ((dx != 0 || dy != 0) && budget != 0) {
+    while ((dx != 0 || dy != 0) && player_ptr->GetSpeed() != 0) {
         bool was_interacted = MoveRobot(player_ptr->x, player_ptr->y, dx, dy);
-        budget--;
+        player_ptr->ChangeSpeed(-1);
         field.ClearVisibility();
         UpdateVisibility();
         Visualizer::UpdateScreen(field, current_move, player_ptr);
 
         dx = dy = 0;
-        if (budget != 0 && !was_interacted) {
+        if (player_ptr->GetSpeed() != 0 && !was_interacted) {
             ch = getch();
             switch (ch) {
                 case 'w': case 'W': case KEY_UP:
@@ -131,6 +130,10 @@ void GameEngine::HandlePlayerTurn() {
                     exit(0);
             }
         }
+    }
+
+    while (player_ptr->GetSpeed() != static_cast<int>(Config::PlayerSpeed)) {
+        player_ptr->ChangeSpeed(1);
     }
 }
 

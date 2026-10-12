@@ -33,7 +33,7 @@ void Robot::AddExp(int amount) {
 }
 
 void Robot::ChangeSpeed(int amount) {
-    if (speed == 1 && amount < 0) return;
+    if (speed + amount < 0) return;
     speed += amount;
 }
 
