@@ -8,7 +8,7 @@
 
 class GameEngine {
 private:
-    std::vector<std::unique_ptr<Robot>> robots;
+    std::vector<std::shared_ptr<Robot>> robots;
     Robot* player_ptr = nullptr;
     int current_move = 1; // Количество ходов
 
@@ -20,7 +20,7 @@ public:
     Field field;
     GameEngine(int width, int height);
 
-    void SpawnRobot(std::unique_ptr<Robot> robot, int x, int y);
+    void SpawnRobot(std::shared_ptr<Robot> robot, int x, int y);
     bool MoveRobot(int from_x, int from_y, int dx, int dy);
     void UpdateVisibility();
     void LoadLevel(std::vector<std::string>& level);

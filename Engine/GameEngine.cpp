@@ -6,7 +6,7 @@
 
 GameEngine::GameEngine(int width, int height) : field(width, height) {}
 
-void GameEngine::SpawnRobot(std::unique_ptr<Robot> robot, int x, int y) {
+void GameEngine::SpawnRobot(std::shared_ptr<Robot> robot, int x, int y) {
     if (field.IsWalkable(x, y)) {
         if (robot->GetType() == Robot::Type::Player) {
             player_ptr = robot.get();
@@ -16,7 +16,7 @@ void GameEngine::SpawnRobot(std::unique_ptr<Robot> robot, int x, int y) {
         robot->y = y;
 
         field.GetCell(x, y).SetRobot(robot.get());
-        robots.push_back(std::move(robot));
+        robots.push_back(robot);
     }
 }
 
@@ -66,7 +66,7 @@ bool GameEngine::MoveRobot(int from_x, int from_y, int dx, int dy) {
 }
 
 void GameEngine::CleanDeadRobots() {
-    std::erase_if(robots, [this](std::unique_ptr<Robot>& robot) {
+    std::erase_if(robots, [this](std::shared_ptr<Robot>& robot) {
         if (robot->GetHp() <= 0) {
             field.GetCell(robot->x, robot->y).RemoveRobot();
             if (robot.get() == player_ptr) {
@@ -197,7 +197,7 @@ void GameEngine::LoadLevel(std::vector<std::string>& level) {
                     break;
                 case 'R':
                     SpawnRobot(
-                        std::make_unique<Robot>("Optimus", Robot::Type::Player, 
+                        std::make_shared<Robot>("Optimus", Robot::Type::Player, 
                             static_cast<int>(Config::PlayerHp), 
                             static_cast<int>(Config::PlayerAttack), 
                             static_cast<int>(Config::PlayerEnergy), 
@@ -206,7 +206,7 @@ void GameEngine::LoadLevel(std::vector<std::string>& level) {
                     break;
                 case 'F':
                     SpawnRobot(
-                        std::make_unique<Robot>("Friend" + std::to_string(f), Robot::Type::Friend, 
+                        std::make_shared<Robot>("Friend" + std::to_string(f), Robot::Type::Friend, 
                             static_cast<int>(Config::FriendHp), 
                             static_cast<int>(Config::FriendAttack), 
                             static_cast<int>(Config::FriendEnergy), 
@@ -216,7 +216,7 @@ void GameEngine::LoadLevel(std::vector<std::string>& level) {
                     break;
                 case 'E':
                     SpawnRobot(
-                        std::make_unique<Robot>("Enemy" + std::to_string(e), Robot::Type::Enemy,
+                        std::make_shared<Robot>("Enemy" + std::to_string(e), Robot::Type::Enemy,
                             static_cast<int>(Config::EnemyHp), 
                             static_cast<int>(Config::EnemyAttack), 
                             static_cast<int>(Config::EnemyEnergy), 

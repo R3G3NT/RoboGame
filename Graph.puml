@@ -82,13 +82,13 @@ class Field {
 }
 
 class GameEngine {
-    - robots : std::vector<std::unique_ptr<Robot>>
+    - robots : std::vector<std::shared_ptr<Robot>>
     - player_ptr : Robot*
     - current_move : int
     + field : Field
     __
     + GameEngine(width : int, height : int)
-    + SpawnRobot(robot : std::unique_ptr<Robot>,
+    + SpawnRobot(robot : std::shared_ptr<Robot>,
                  x : int, y : int) : void
     + MoveRobot(from_x : int, from_y : int,
                 dx : int, dy : int) : bool

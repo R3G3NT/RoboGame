@@ -4,7 +4,7 @@
 
 TEST(GameEngine, SpawnRobotOnEmptyCell) {
     GameEngine engine(20, 10);
-    auto robot = std::make_unique<Robot>(
+    auto robot = std::make_shared<Robot>(
         "P", Robot::Type::Player, 100, 20, 60, 2);
 
     Robot* r = robot.get();
@@ -18,7 +18,7 @@ TEST(GameEngine, SpawnRobotOnWallDoesNothing) {
     GameEngine engine(20, 10);
     engine.field.GetCell(5, 5).SetTerrain(Cell::Terrain::Wall);
 
-    auto robot = std::make_unique<Robot>(
+    auto robot = std::make_shared<Robot>(
         "P", Robot::Type::Player, 100, 20, 60, 2);
     engine.SpawnRobot(std::move(robot), 5, 5);
 
@@ -48,7 +48,7 @@ TEST(GameEngine, LoadLevelParsesSymbols) {
 
 TEST(GameEngine, MoveRobotMovesPlayer) {
     GameEngine engine(20, 10);
-    auto player = std::make_unique<Robot>(
+    auto player = std::make_shared<Robot>(
         "P", Robot::Type::Player, 100, 20, 60, 1);
     Robot* r = player.get();
     engine.SpawnRobot(std::move(player), 5, 5);
@@ -65,7 +65,7 @@ TEST(GameEngine, MoveRobotStopsAtWall) {
     GameEngine engine(20, 10);
     engine.field.GetCell(7, 5).SetTerrain(Cell::Terrain::Wall);
 
-    auto player = std::make_unique<Robot>(
+    auto player = std::make_shared<Robot>(
         "P", Robot::Type::Player, 100, 20, 60, 2);
     Robot* r = player.get();
     engine.SpawnRobot(std::move(player), 5, 5);
@@ -78,11 +78,11 @@ TEST(GameEngine, MoveRobotStopsAtWall) {
 TEST(GameEngine, MoveRobotAttacksEnemy) {
     GameEngine engine(20, 10);
 
-    auto player = std::make_unique<Robot>(
+    auto player = std::make_shared<Robot>(
         "P", Robot::Type::Player, 100, 20, 60, 1);
     engine.SpawnRobot(std::move(player), 6, 5);
 
-    auto enemy = std::make_unique<Robot>(
+    auto enemy = std::make_shared<Robot>(
         "E", Robot::Type::Enemy, 50, 10, 30, 1);
     Robot* e = enemy.get();
     engine.SpawnRobot(std::move(enemy), 7, 5);
