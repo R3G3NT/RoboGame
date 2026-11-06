@@ -1,8 +1,8 @@
 #include "GameEngine.h"
 #include "Visualizer.h"
+#include "InputHandler.h"
 #include "Config.h"
-#include <ncurses.h>
-#include <algorithm>
+#include <ncurses.h> 
 
 GameEngine::GameEngine(int width, int height) : field(width, height) {}
 
@@ -11,17 +11,13 @@ void GameEngine::SpawnRobot(std::shared_ptr<Robot> robot, int x, int y) {
         if (robot->GetType() == Robot::Type::Player) {
             player_ptr = robot.get();
         }
-
         robot->x = x;
         robot->y = y;
-
         field.GetCell(x, y).SetRobot(robot.get());
         robots.push_back(robot);
     }
 }
 
-// Возвращает true, если произошло взаимодействие с другим роботом
-// (движение при этом прекращается).
 bool GameEngine::MoveRobot(int from_x, int from_y, int dx, int dy) {
     if (!field.GetCell(from_x, from_y).HasRobot()) {
         return false;
@@ -37,7 +33,7 @@ bool GameEngine::MoveRobot(int from_x, int from_y, int dx, int dy) {
         x += dx;
         y += dy;
 
-        if (x < 0 || x >= field.GetWidth() || 
+        if (x < 0 || x >= field.GetWidth() ||
             y < 0 || y >= field.GetHeight()) break;
 
         Cell& target_cell = field.GetCell(x, y);
@@ -53,9 +49,9 @@ bool GameEngine::MoveRobot(int from_x, int from_y, int dx, int dy) {
             from_y = y;
             moving_robot->x = x;
             moving_robot->y = y;
-        } 
-        else { 
-            break; 
+        }
+        else {
+            break;
         }
         speed--;
     }
@@ -80,75 +76,14 @@ void GameEngine::CleanDeadRobots() {
     });
 }
 
-// Возвращает true, если произошло изменение направление
-bool GameEngine::ReadDirection(int ch, int& dx, int& dy) {
-    dx = dy = 0;
-    switch (ch) {
-        case 'w': case 'W': case KEY_UP:    
-            dy = -1; 
-            return true;
-        case 's': case 'S': case KEY_DOWN:  
-            dy =  1; 
-            return true;
-        case 'a': case 'A': case KEY_LEFT:  
-            dx = -1; 
-            return true;
-        case 'd': case 'D': case KEY_RIGHT: 
-            dx =  1; 
-            return true;
-    }
-    return false;
-}
-
-void GameEngine::HandlePlayerTurn() {
-    if (!player_ptr) return;
-
-    int ch = getch();
-    int dx = 0, dy = 0;
-    switch (ch) {
-        case '\n':
-            player_ptr->ChangeEnergy(Config::EnergyPerWait);
-            break;
-        case 'q': case 'Q':
-            Visualizer::Shutdown();
-            exit(0);
-    }
-
-    if (!ReadDirection(ch, dx, dy)) return;
-
-    while ((dx != 0 || dy != 0) && player_ptr->GetSpeed() != 0) {
-        bool was_interacted = MoveRobot(player_ptr->x, player_ptr->y, dx, dy);
-        player_ptr->ChangeSpeed(-1);
-        field.ClearVisibility();
-        UpdateVisibility();
-        Visualizer::UpdateScreen(field, current_move, player_ptr);
-
-        if (player_ptr->GetSpeed() != 0 && !was_interacted) {
-            ch = getch();
-            switch (ch) {
-                case 'q': case 'Q':
-                    Visualizer::Shutdown();
-                    exit(0);
-            }
-
-            ReadDirection(ch, dx, dy);
-        }
-    }
-
-    while (player_ptr->GetSpeed() < player_ptr->GetMaxSpeed()) {
-        player_ptr->ChangeSpeed(1);
-    }
-}
-
 void GameEngine::HandleEnemiesTurn() {
     if (!player_ptr) return;
 
     for (int i = 0; i < robots.size(); i++) {
-        if (!player_ptr) return;  
+        if (!player_ptr) return;
 
         if (robots[i]->GetType() == Robot::Type::Enemy) {
             int dx = 0, dy = 0;
-
             if (player_ptr->x > robots[i]->x)      dx = 1;
             else if (player_ptr->x < robots[i]->x) dx = -1;
             else if (player_ptr->y > robots[i]->y) dy = 1;
@@ -160,9 +95,7 @@ void GameEngine::HandleEnemiesTurn() {
 }
 
 void GameEngine::UpdateVisibility() {
-    if (!player_ptr) {
-        return;
-    }
+    if (!player_ptr) return;
 
     int radius = Config::VisibilityRadius;
     for (int dy = -radius; dy <= radius; dy++) {
@@ -172,20 +105,18 @@ void GameEngine::UpdateVisibility() {
 
             if (x < 0 || x >= field.GetWidth() ||
                 y < 0 || y >= field.GetHeight()) continue;
-
+                
             field.GetCell(x, y).SetVisible(true);
         }
     }
 }
 
-void GameEngine::LoadLevel(std::vector<std::string>& level) {
-    int e = 1, f = 1; // Счётчик врагов и друзей
+void GameEngine::LoadLevel(const std::vector<std::string>& level) {
+    int e = 1, f = 1;
     for (int y = 0; y < field.GetHeight(); y++) {
-        for (int x = 0; x < field.GetWidth(); x++){
+        for (int x = 0; x < field.GetWidth(); x++) {
             char c = level[y][x];
-
-            switch (c)
-            {
+            switch (c) {
                 case '#':
                     field.GetCell(x, y).SetTerrain(Cell::Terrain::Wall);
                     break;
@@ -194,30 +125,24 @@ void GameEngine::LoadLevel(std::vector<std::string>& level) {
                     break;
                 case 'R':
                     SpawnRobot(
-                        std::make_shared<Robot>("Optimus", Robot::Type::Player, 
-                            Config::PlayerHp, 
-                            Config::PlayerAttack, 
-                            Config::PlayerEnergy, 
-                            Config::PlayerSpeed), 
+                        std::make_shared<Robot>("Optimus", Robot::Type::Player,
+                            Config::PlayerHp, Config::PlayerAttack,
+                            Config::PlayerEnergy, Config::PlayerSpeed),
                         x, y);
                     break;
                 case 'F':
                     SpawnRobot(
-                        std::make_shared<Robot>("Friend" + std::to_string(f), Robot::Type::Friend, 
-                            Config::FriendHp, 
-                            Config::FriendAttack, 
-                            Config::FriendEnergy, 
-                            Config::FriendSpeed),  
+                        std::make_shared<Robot>("Friend" + std::to_string(f), Robot::Type::Friend,
+                            Config::FriendHp, Config::FriendAttack,
+                            Config::FriendEnergy, Config::FriendSpeed),
                         x, y);
                     f++;
                     break;
                 case 'E':
                     SpawnRobot(
                         std::make_shared<Robot>("Enemy" + std::to_string(e), Robot::Type::Enemy,
-                            Config::EnemyHp, 
-                            Config::EnemyAttack, 
-                            Config::EnemyEnergy, 
-                            Config::EnemySpeed), 
+                            Config::EnemyHp, Config::EnemyAttack,
+                            Config::EnemyEnergy, Config::EnemySpeed),
                         x, y);
                     e++;
             }
@@ -225,46 +150,94 @@ void GameEngine::LoadLevel(std::vector<std::string>& level) {
     }
 }
 
+void GameEngine::HandlePlayerTurn(Command cmd) {
+    if (!player_ptr) return;
+
+    switch (cmd.type) {
+        case Command::Type::Quit:
+            Visualizer::Shutdown();
+            exit(0);
+        case Command::Type::Wait:
+            player_ptr->ChangeEnergy(Config::EnergyPerWait);
+            return;
+        case Command::Type::Move:
+            MovePlayer(cmd.dx, cmd.dy);
+            return;
+    }
+}
+
+void GameEngine::MovePlayer(int dx, int dy) {
+    while ((dx != 0 || dy != 0) && player_ptr->GetSpeed() != 0) {
+        bool was_interacted = MoveRobot(player_ptr->x, player_ptr->y, dx, dy);
+        player_ptr->ChangeSpeed(-1);
+
+        field.ClearVisibility();
+        UpdateVisibility();
+        Visualizer::UpdateScreen(field, current_move, player_ptr);
+
+        dx = dy = 0;
+        if (player_ptr->GetSpeed() != 0 && !was_interacted) {
+            Command next = InputHandler::ReadFromKeyboard();
+            if (next.type == Command::Type::Quit) {
+                Visualizer::Shutdown();
+                exit(0);
+            }
+            else if (next.type == Command::Type::Move) {
+                dx = next.dx;
+                dy = next.dy;
+            }
+        }
+    }
+
+    while (player_ptr->GetSpeed() < player_ptr->GetMaxSpeed()) {
+        player_ptr->ChangeSpeed(1);
+    }
+}
+
+bool GameEngine::Step(Command cmd) {
+    HandlePlayerTurn(cmd);
+    CleanDeadRobots();
+    HandleEnemiesTurn();
+    CleanDeadRobots();
+
+    bool no_enemy = true;
+    for (const auto& r : robots) {
+        if (r->GetType() == Robot::Type::Enemy) {
+            no_enemy = false;
+            break;
+        }
+    }
+    if (no_enemy) {
+        erase();
+        Visualizer::Draw(field);
+        printw("\nYou destroyed all the enemies! You WON :)\nPress any key...\n");
+        getch();
+        return false;
+    }
+
+    if (!player_ptr) {
+        erase();
+        Visualizer::Draw(field);
+        printw("\nGAME OVER! Your robot has been destroyed :(\nPress any key...");
+        refresh();
+        getch();
+        return false;
+    }
+
+    for (auto& r : robots) {
+        r->ChangeEnergy(Config::EnergyPerTurn);
+    }
+
+    ++current_move;
+    field.ClearVisibility();
+    UpdateVisibility();
+    Visualizer::UpdateScreen(field, current_move, player_ptr);
+    return true;
+}
+
 void GameEngine::Run() {
     UpdateVisibility();
     Visualizer::UpdateScreen(field, current_move, player_ptr);
 
-    while (player_ptr != nullptr) { // Играем, пока игрок жив
-        HandlePlayerTurn();
-        CleanDeadRobots();
-        HandleEnemiesTurn();
-        CleanDeadRobots();
-
-        bool no_enemy = true;
-        for (int i = 0; i < robots.size(); i++) {
-            if (robots[i]->GetType() == Robot::Type::Enemy) {
-                no_enemy = false;
-                break;
-            }
-        }
-        if (no_enemy) {
-            erase();
-            Visualizer::Draw(field);
-            printw("\nYou destroyed all the enemies! You WON :)\nPress any key...\n");
-            getch();
-            return;
-        }
-
-        for (auto& robot : robots) {
-            robot->ChangeEnergy(Config::EnergyPerTurn);
-        }
-
-        current_move++;
-        field.ClearVisibility();
-        UpdateVisibility();
-        if (player_ptr != nullptr) {
-            Visualizer::UpdateScreen(field, current_move, player_ptr);
-        }
-    }
-
-    erase();
-    Visualizer::Draw(field);
-    printw("\nGAME OVER! Your robot has been destroyed :(\nPress any key...");
-    refresh();
-    getch();
+    while (Step(InputHandler::ReadFromKeyboard())) { }
 }
