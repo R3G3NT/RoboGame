@@ -17,6 +17,7 @@ private:
     void MovePlayer(int dx, int dy);
     void HandleEnemiesTurn();
     void CleanDeadRobots();
+    void ShowMessage(const std::string& message);
 
 public:
     Field field;

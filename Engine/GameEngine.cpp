@@ -194,11 +194,24 @@ void GameEngine::MovePlayer(int dx, int dy) {
     }
 }
 
+void GameEngine::ShowMessage(const std::string& message) {
+    erase();
+    Visualizer::Draw(field);
+    printw("%s\n", message.c_str());
+    refresh();
+    getch();
+}
+
 bool GameEngine::Step(Command cmd) {
     HandlePlayerTurn(cmd);
     CleanDeadRobots();
     HandleEnemiesTurn();
     CleanDeadRobots();
+
+    if (!player_ptr) {
+        ShowMessage("\nGAME OVER! Your robot has been destroyed :(\nPress any key...");
+        return false;
+    }
 
     bool no_enemy = true;
     for (const auto& r : robots) {
@@ -208,19 +221,7 @@ bool GameEngine::Step(Command cmd) {
         }
     }
     if (no_enemy) {
-        erase();
-        Visualizer::Draw(field);
-        printw("\nYou destroyed all the enemies! You WON :)\nPress any key...\n");
-        getch();
-        return false;
-    }
-
-    if (!player_ptr) {
-        erase();
-        Visualizer::Draw(field);
-        printw("\nGAME OVER! Your robot has been destroyed :(\nPress any key...");
-        refresh();
-        getch();
+        ShowMessage("\nYou destroyed all the enemies! You WON :)\nPress any key...\n");
         return false;
     }
 
