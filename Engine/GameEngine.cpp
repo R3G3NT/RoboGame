@@ -20,6 +20,8 @@ void GameEngine::SpawnRobot(std::shared_ptr<Robot> robot, int x, int y) {
     }
 }
 
+// Возвращает true, если произошло взаимодействие с другим роботом
+// (движение при этом прекращается).
 bool GameEngine::MoveRobot(int from_x, int from_y, int dx, int dy) {
     if (!field.GetCell(from_x, from_y).HasRobot()) {
         return false;
@@ -59,7 +61,7 @@ bool GameEngine::MoveRobot(int from_x, int from_y, int dx, int dy) {
     }
 
     if (field.GetCell(moving_robot->x, moving_robot->y).GetTerrain() == Cell::Terrain::Swamp) {
-        moving_robot->ChangeSpeed(-1);
+        moving_robot->SetMaxSpeed(1);
     }
 
     return false;
@@ -78,6 +80,7 @@ void GameEngine::CleanDeadRobots() {
     });
 }
 
+// Возвращает true, если произошло изменение направление
 bool GameEngine::ReadDirection(int ch, int& dx, int& dy) {
     dx = dy = 0;
     switch (ch) {
@@ -132,7 +135,7 @@ void GameEngine::HandlePlayerTurn() {
         }
     }
 
-    while (player_ptr->GetSpeed() != Config::PlayerSpeed) {
+    while (player_ptr->GetSpeed() < player_ptr->GetMaxSpeed()) {
         player_ptr->ChangeSpeed(1);
     }
 }

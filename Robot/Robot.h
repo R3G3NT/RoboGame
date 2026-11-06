@@ -12,7 +12,7 @@ private:
     Type type;
     int hp, max_hp;
     int attack_power;
-    int speed;
+    int speed, max_speed;
     int energy, max_energy;
     int exp, exp_for_next_rank;
     int rank = 1;
@@ -27,6 +27,7 @@ public:
     int GetMaxHp() const;
     int GetAttackPower() const;
     int GetSpeed() const;
+    int GetMaxSpeed() const;
     int GetEnergy() const;
     int GetMaxEnergy() const;
     int GetExp() const;
@@ -36,6 +37,7 @@ public:
     void ChangeHp(int amount);
     void ChangeEnergy(int amount);
     void ChangeSpeed(int amount);
+    void SetMaxSpeed(int new_max_speed);
     void AddExp(int amount);
 
     void Interact(Robot* other);

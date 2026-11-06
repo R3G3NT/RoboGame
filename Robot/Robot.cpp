@@ -4,7 +4,7 @@
 
 Robot::Robot(std::string name, Type type, int hp, int attack, int energy, int speed)
     : name(name), type(type), hp(hp), max_hp(hp), attack_power(attack),
-      energy(energy), max_energy(energy), exp(0), exp_for_next_rank(50), speed(speed) {}
+      energy(energy), max_energy(energy), exp(0), exp_for_next_rank(50), speed(speed), max_speed(speed) {}
 
 std::string Robot::GetName() const { return name; }
 Robot::Type Robot::GetType() const { return type; }
@@ -12,6 +12,7 @@ int Robot::GetHp() const { return hp; }
 int Robot::GetMaxHp() const { return max_hp; }
 int Robot::GetAttackPower() const { return attack_power; }
 int Robot::GetSpeed() const { return speed; }
+int Robot::GetMaxSpeed() const { return max_speed; }
 int Robot::GetEnergy() const { return energy; }
 int Robot::GetMaxEnergy() const { return max_energy; }
 int Robot::GetExp() const { return exp; }
@@ -35,6 +36,11 @@ void Robot::AddExp(int amount) {
 void Robot::ChangeSpeed(int amount) {
     if (speed + amount < 0) return;
     speed += amount;
+}
+
+void Robot::SetMaxSpeed(int new_max_speed) {
+    if (new_max_speed < 0) return;
+    max_speed = new_max_speed;
 }
 
 void Robot::CheckRankUp() {
