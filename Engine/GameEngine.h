@@ -12,6 +12,7 @@ private:
     Robot* player_ptr = nullptr;
     int current_move = 1; // Количество ходов
 
+    bool ReadDirection(int ch, int& dx, int& dy);
     void HandlePlayerTurn();
     void HandleEnemiesTurn();
     void CleanDeadRobots();

@@ -78,22 +78,31 @@ void GameEngine::CleanDeadRobots() {
     });
 }
 
+bool GameEngine::ReadDirection(int ch, int& dx, int& dy) {
+    dx = dy = 0;
+    switch (ch) {
+        case 'w': case 'W': case KEY_UP:    
+            dy = -1; 
+            return true;
+        case 's': case 'S': case KEY_DOWN:  
+            dy =  1; 
+            return true;
+        case 'a': case 'A': case KEY_LEFT:  
+            dx = -1; 
+            return true;
+        case 'd': case 'D': case KEY_RIGHT: 
+            dx =  1; 
+            return true;
+    }
+    return false;
+}
+
 void GameEngine::HandlePlayerTurn() {
+    if (!player_ptr) return;
+
     int ch = getch();
     int dx = 0, dy = 0;
     switch (ch) {
-        case 'w': case 'W': case KEY_UP:
-            dy = -1;
-            break;
-        case 's': case 'S': case KEY_DOWN:
-            dy = 1;
-            break;
-        case 'a': case 'A': case KEY_LEFT:
-            dx = -1;
-            break;
-        case 'd': case 'D': case KEY_RIGHT:
-            dx = 1;
-            break;
         case '\n':
             player_ptr->ChangeEnergy(Config::EnergyPerWait);
             break;
@@ -102,6 +111,8 @@ void GameEngine::HandlePlayerTurn() {
             exit(0);
     }
 
+    if (!ReadDirection(ch, dx, dy)) return;
+
     while ((dx != 0 || dy != 0) && player_ptr->GetSpeed() != 0) {
         bool was_interacted = MoveRobot(player_ptr->x, player_ptr->y, dx, dy);
         player_ptr->ChangeSpeed(-1);
@@ -109,26 +120,15 @@ void GameEngine::HandlePlayerTurn() {
         UpdateVisibility();
         Visualizer::UpdateScreen(field, current_move, player_ptr);
 
-        dx = dy = 0;
         if (player_ptr->GetSpeed() != 0 && !was_interacted) {
             ch = getch();
             switch (ch) {
-                case 'w': case 'W': case KEY_UP:
-                    dy = -1;
-                    break;
-                case 's': case 'S': case KEY_DOWN:
-                    dy = 1;
-                    break;
-                case 'a': case 'A': case KEY_LEFT:
-                    dx = -1;
-                    break;
-                case 'd': case 'D': case KEY_RIGHT:
-                    dx = 1;
-                    break;
                 case 'q': case 'Q':
                     Visualizer::Shutdown();
                     exit(0);
             }
+
+            ReadDirection(ch, dx, dy);
         }
     }
 
