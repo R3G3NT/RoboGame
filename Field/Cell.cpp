@@ -1,5 +1,5 @@
 #include "Cell.h"
-#include "../Robot/Robot.h"
+#include "Robot/Robot.h"
 
 Cell::Cell(Terrain terrain) : terrain(terrain) {}
 

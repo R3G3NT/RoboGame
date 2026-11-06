@@ -1,6 +1,6 @@
 #include "GameEngine.h"
 #include "Visualizer.h"
-#include "../Engine/Config.h"
+#include "Config.h"
 #include <ncurses.h>
 #include <algorithm>
 
@@ -95,7 +95,7 @@ void GameEngine::HandlePlayerTurn() {
             dx = 1;
             break;
         case '\n':
-            player_ptr->ChangeEnergy(static_cast<int>(Config::EnergyPerWait));
+            player_ptr->ChangeEnergy(Config::EnergyPerWait);
             break;
         case 'q': case 'Q':
             Visualizer::Shutdown();
@@ -132,7 +132,7 @@ void GameEngine::HandlePlayerTurn() {
         }
     }
 
-    while (player_ptr->GetSpeed() != static_cast<int>(Config::PlayerSpeed)) {
+    while (player_ptr->GetSpeed() != Config::PlayerSpeed) {
         player_ptr->ChangeSpeed(1);
     }
 }
@@ -141,21 +141,15 @@ void GameEngine::HandleEnemiesTurn() {
     if (!player_ptr) return;
 
     for (int i = 0; i < robots.size(); i++) {
+        if (!player_ptr) return;  
+
         if (robots[i]->GetType() == Robot::Type::Enemy) {
             int dx = 0, dy = 0;
 
-            if (player_ptr->x > robots[i]->x) { 
-                dx = 1;
-            }
-            else if (player_ptr->x < robots[i]->x) { 
-                dx = -1;
-            }
-            else if (player_ptr->y > robots[i]->y) { 
-                dy = 1;
-            }
-            else if (player_ptr->y < robots[i]->y) { 
-                dy = -1;
-            }
+            if (player_ptr->x > robots[i]->x)      dx = 1;
+            else if (player_ptr->x < robots[i]->x) dx = -1;
+            else if (player_ptr->y > robots[i]->y) dy = 1;
+            else if (player_ptr->y < robots[i]->y) dy = -1;
 
             MoveRobot(robots[i]->x, robots[i]->y, dx, dy);
         }
@@ -167,7 +161,7 @@ void GameEngine::UpdateVisibility() {
         return;
     }
 
-    int radius = static_cast<int>(Config::VisibilityRadius);
+    int radius = Config::VisibilityRadius;
     for (int dy = -radius; dy <= radius; dy++) {
         for (int dx = -radius - 3; dx <= radius + 3; dx++) {
             int x = player_ptr->x + dx;
@@ -198,29 +192,29 @@ void GameEngine::LoadLevel(std::vector<std::string>& level) {
                 case 'R':
                     SpawnRobot(
                         std::make_shared<Robot>("Optimus", Robot::Type::Player, 
-                            static_cast<int>(Config::PlayerHp), 
-                            static_cast<int>(Config::PlayerAttack), 
-                            static_cast<int>(Config::PlayerEnergy), 
-                            static_cast<int>(Config::PlayerSpeed)), 
+                            Config::PlayerHp, 
+                            Config::PlayerAttack, 
+                            Config::PlayerEnergy, 
+                            Config::PlayerSpeed), 
                         x, y);
                     break;
                 case 'F':
                     SpawnRobot(
                         std::make_shared<Robot>("Friend" + std::to_string(f), Robot::Type::Friend, 
-                            static_cast<int>(Config::FriendHp), 
-                            static_cast<int>(Config::FriendAttack), 
-                            static_cast<int>(Config::FriendEnergy), 
-                            static_cast<int>(Config::FriendSpeed)),  
+                            Config::FriendHp, 
+                            Config::FriendAttack, 
+                            Config::FriendEnergy, 
+                            Config::FriendSpeed),  
                         x, y);
                     f++;
                     break;
                 case 'E':
                     SpawnRobot(
                         std::make_shared<Robot>("Enemy" + std::to_string(e), Robot::Type::Enemy,
-                            static_cast<int>(Config::EnemyHp), 
-                            static_cast<int>(Config::EnemyAttack), 
-                            static_cast<int>(Config::EnemyEnergy), 
-                            static_cast<int>(Config::EnemySpeed)), 
+                            Config::EnemyHp, 
+                            Config::EnemyAttack, 
+                            Config::EnemyEnergy, 
+                            Config::EnemySpeed), 
                         x, y);
                     e++;
             }
@@ -254,7 +248,7 @@ void GameEngine::Run() {
         }
 
         for (auto& robot : robots) {
-            robot->ChangeEnergy(static_cast<int>(Config::EnergyPerTurn));
+            robot->ChangeEnergy(Config::EnergyPerTurn);
         }
 
         current_move++;

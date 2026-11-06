@@ -1,34 +1,34 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-enum class Config {
+namespace Config {
     // Цены действий
-    AttackCost         = 20,
-    HealCost           = 20,
+    constexpr int AttackCost = 20;
+    constexpr int HealCost   = 20;
 
     // Эффекты действий
-    HealAmount         = 15,
+    constexpr int HealAmount = 15;
 
     // Игровой цикл
-    VisibilityRadius   = 3,
-    EnergyPerTurn      = 10,
-    EnergyPerWait      = 10,
+    constexpr int VisibilityRadius = 3;
+    constexpr int EnergyPerTurn    = 10;
+    constexpr int EnergyPerWait    = 10;
 
     // Параметры роботов
-    PlayerHp           = 100,
-    PlayerAttack       = 20,
-    PlayerEnergy       = 60,
-    PlayerSpeed        = 2,
+    constexpr int PlayerHp     = 100;
+    constexpr int PlayerAttack = 20;
+    constexpr int PlayerEnergy = 60;
+    constexpr int PlayerSpeed  = 2;
 
-    FriendHp           = 30,
-    FriendAttack       = 5,
-    FriendEnergy       = 20,
-    FriendSpeed        = 0,
+    constexpr int FriendHp     = 30;
+    constexpr int FriendAttack = 5;
+    constexpr int FriendEnergy = 20;
+    constexpr int FriendSpeed  = 0;
 
-    EnemyHp            = 50,
-    EnemyAttack        = 10,
-    EnemyEnergy        = 30,
-    EnemySpeed         = 1,
-};
+    constexpr int EnemyHp      = 50;
+    constexpr int EnemyAttack  = 10;
+    constexpr int EnemyEnergy  = 30;
+    constexpr int EnemySpeed   = 1;
+}
 
 #endif

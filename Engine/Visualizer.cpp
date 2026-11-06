@@ -1,6 +1,6 @@
 #include "Visualizer.h"
-#include "../Field/Field.h"
-#include "../Robot/Robot.h"
+#include "Field/Field.h"
+#include "Robot/Robot.h"
 #include <ncurses.h>
 
 void Visualizer::InitScreen() {
@@ -52,6 +52,11 @@ void Visualizer::Draw(Field& field) {
 }
 
 void Visualizer::DrawStatus(Robot* robot) {
+    if (!robot) {
+        printw(" No player \n");
+        return;
+    }
+
     printw("%s\n", robot->GetName().c_str());
     printw("HP: %d/%d\n", robot->GetHp(), robot->GetMaxHp());
     printw("EN: %d/%d\n", robot->GetEnergy(), robot->GetMaxEnergy());

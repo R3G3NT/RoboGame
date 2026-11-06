@@ -1,8 +1,8 @@
 #ifndef GAME_ENGINE_H_
 #define GAME_ENGINE_H_
 
-#include "../Field/Field.h"
-#include "../Robot/Robot.h"
+#include "Field/Field.h"
+#include "Robot/Robot.h"
 #include <vector>
 #include <memory>
 
