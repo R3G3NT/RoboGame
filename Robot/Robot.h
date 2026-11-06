@@ -2,6 +2,11 @@
 #define ROBOT_H_
 
 #include <string>
+#include <vector>
+#include <memory>
+
+class IAbility; 
+class Field;
 
 class Robot {
 public:
@@ -16,6 +21,8 @@ private:
     int energy, max_energy;
     int exp, exp_for_next_rank;
     int rank = 1;
+
+    std::vector<std::shared_ptr<IAbility>> abilities;
 
 public:
     int x, y;
@@ -41,6 +48,12 @@ public:
     void AddExp(int amount);
 
     void Interact(Robot* other);
+
+    void AddAbility(std::shared_ptr<IAbility> ability);
+
+    const std::vector<std::shared_ptr<IAbility>>& GetAbilities() const;
+
+    bool UseAbility(size_t index, Field& field, int target_x = 0, int target_y = 0);
 
 private:
     void CheckRankUp();

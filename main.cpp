@@ -1,9 +1,12 @@
 #include "Engine/GameEngine.h"
 #include "Engine/Visualizer.h"
-#include <ncurses.h>
+#include "Engine/LevelLoader.h"
 #include <memory>
+#include <cstdlib>
+#include <ctime>
 
 int main() {
+    std::srand(std::time(nullptr));
     Visualizer::InitScreen();
 
     try {
@@ -17,13 +20,13 @@ int main() {
             "#.....~~~.....................#..F..#.........~~~#",
             "#.............###.............#.....#.........~~~#",
             "#.............###.............##...##..........~~#",
-            "#..E..........###.....E.................E.....####",
+            "#..E..........###.....E........幕........E.....####",
             "#.............###.............................####",
             "##################################################"
         };
 
         GameEngine engine(level[0].size(), level.size());
-        engine.LoadLevel(level);
+        LevelLoader::Load(engine, level);
         engine.Run();
     } 
     catch (const std::exception& e) {

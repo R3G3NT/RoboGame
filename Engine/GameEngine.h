@@ -26,9 +26,9 @@ public:
     ~GameEngine() = default;
 
     void SpawnRobot(std::shared_ptr<Robot> robot, int x, int y);
+    std::pair<int, int> SelectTargetCoordinate();
     bool MoveRobot(int from_x, int from_y, int dx, int dy);
     void UpdateVisibility();
-    void LoadLevel(const std::vector<std::string>& level);
 
     bool Step(Command cmd);
 

@@ -27,6 +27,10 @@ Command InputHandler::ReadFromKeyboard() {
         case 'q': case 'Q':
             cmd.type = Command::Type::Quit; 
             break;
+        case '1': case '2': case '3': case '4':
+            cmd.type = Command::Type::UseAbility;
+            cmd.ability_index = ch - '1';
+            break;
         default:
             cmd.type = Command::Type::None; 
             break;

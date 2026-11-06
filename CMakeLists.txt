@@ -15,6 +15,7 @@ add_library(robogame_core STATIC
         Engine/Visualizer.cpp
         Engine/GameEngine.cpp
         Engine/InputHandler.cpp
+        Engine/LevelLoader.cpp
 )
 target_include_directories(robogame_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(robogame_core PRIVATE ${CURSES_INCLUDE_DIRS})

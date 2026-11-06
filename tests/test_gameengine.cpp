@@ -1,5 +1,6 @@
 #include "Engine/GameEngine.h"
 #include "Robot/Robot.h"
+#include "Engine/LevelLoader.h"
 #include <gtest/gtest.h>
 
 TEST(GameEngine, SpawnRobotOnEmptyCell) {
@@ -35,7 +36,7 @@ TEST(GameEngine, LoadLevelParsesSymbols) {
     };
 
     GameEngine engine(10, 5);
-    engine.LoadLevel(level);
+    LevelLoader::Load(engine, level);
 
     EXPECT_EQ(engine.field.GetCell(1, 1).GetRobot()->GetType(),
               Robot::Type::Player);
@@ -106,7 +107,7 @@ TEST(GameEngine, UpdateVisibilityRevealsAroundPlayer) {
     };
 
     GameEngine engine(10, 9);
-    engine.LoadLevel(level);
+    LevelLoader::Load(engine, level);
     engine.UpdateVisibility();
 
     EXPECT_TRUE(engine.field.GetCell(4, 7).IsVisible());

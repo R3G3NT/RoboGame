@@ -1,5 +1,6 @@
 #include "Robot.h"
 #include "Engine/Config.h"
+#include "Abilities.h"
 #include <algorithm>
 
 Robot::Robot(std::string name, Type type, int hp, int attack, int energy, int speed)
@@ -76,4 +77,22 @@ void Robot::Interact(Robot* other) {
             other->ChangeEnergy(-Config::HealCost);
         }
     }
+}
+
+void Robot::AddAbility(std::shared_ptr<IAbility> ability) {
+    if (ability) {
+        abilities.push_back(ability);
+    }
+}
+
+const std::vector<std::shared_ptr<IAbility>>& Robot::GetAbilities() const {
+    return abilities;
+}
+
+bool Robot::UseAbility(size_t index, Field& field, int target_x, int target_y) {
+    if (index >= abilities.size()) {
+        return false;
+    }
+    
+    return abilities[index]->Use(this, field, target_x, target_y);
 }

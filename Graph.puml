@@ -2,49 +2,7 @@
 left to right direction
 skinparam linetype ortho
 
-class Robot {
-    - name : std::string
-    - type : Type
-    - hp : int
-    - max_hp : int
-    - attack_power : int
-    - speed : int
-    - energy : int
-    - max_energy : int
-    - exp : int
-    - exp_for_next_rank : int
-    - rank : int
-    + x : int
-    + y : int
-    __
-    + Robot(name : std::string, type : Type,
-            hp : int, attack : int,
-            energy : int, speed : int)
-    + GetName() : std::string
-    + GetType() : Type
-    + GetHp() : int
-    + GetMaxHp() : int
-    + GetAttackPower() : int
-    + GetSpeed() : int
-    + GetEnergy() : int
-    + GetMaxEnergy() : int
-    + GetExp() : int
-    + GetExpToNextRank() : int
-    + GetRank() : int
-    + ChangeHp(amount : int) : void
-    + ChangeEnergy(amount : int) : void
-    + ChangeSpeed(amount : int) : void
-    + AddExp(amount : int) : void
-    + Interact(other : Robot*) : void
-    - CheckRankUp() : void
-}
-
-enum "Robot::Type" as RobotType <<enumeration>> {
-    Player
-    Friend
-    Enemy
-}
-
+' ─── Данные поля ──────────────────────────────────────────────
 class Cell {
     - terrain : Terrain
     - visible : bool
@@ -81,6 +39,72 @@ class Field {
     + ClearVisibility() : void
 }
 
+' ─── Сущности ─────────────────────────────────────────────────
+class Robot {
+    - name : std::string
+    - type : Type
+    - hp : int
+    - max_hp : int
+    - attack_power : int
+    - speed : int
+    - max_speed : int
+    - energy : int
+    - max_energy : int
+    - exp : int
+    - exp_for_next_rank : int
+    - rank : int
+    + x : int
+    + y : int
+    __
+    + Robot(name : std::string, type : Type,
+            hp : int, attack : int,
+            energy : int, speed : int)
+    + GetName() : std::string
+    + GetType() : Type
+    + GetHp() : int
+    + GetMaxHp() : int
+    + GetAttackPower() : int
+    + GetSpeed() : int
+    + GetMaxSpeed() : int
+    + GetEnergy() : int
+    + GetMaxEnergy() : int
+    + GetExp() : int
+    + GetExpToNextRank() : int
+    + GetRank() : int
+    + ChangeHp(amount : int) : void
+    + ChangeEnergy(amount : int) : void
+    + ChangeSpeed(amount : int) : void
+    + SetMaxSpeed(new_max_speed : int) : void
+    + AddExp(amount : int) : void
+    + Interact(other : Robot*) : void
+    - CheckRankUp() : void
+}
+
+enum "Robot::Type" as RobotType <<enumeration>> {
+    Player
+    Friend
+    Enemy
+}
+
+' ─── Ввод ─────────────────────────────────────────────────────
+struct Command {
+    + type : Type
+    + dx : int
+    + dy : int
+}
+
+enum "Command::Type" as CommandType <<enumeration>> {
+    None
+    Move
+    Wait
+    Quit
+}
+
+class InputHandler <<static utility>> {
+    + {static} ReadFromKeyboard() : Command
+}
+
+' ─── Движок ───────────────────────────────────────────────────
 class GameEngine {
     - robots : std::vector<std::shared_ptr<Robot>>
     - player_ptr : Robot*
@@ -93,13 +117,17 @@ class GameEngine {
     + MoveRobot(from_x : int, from_y : int,
                 dx : int, dy : int) : bool
     + UpdateVisibility() : void
-    + LoadLevel(level : std::vector<std::string>&) : void
+    + LoadLevel(level : const std::vector<std::string>&) : void
+    + Step(cmd : Command) : bool
     + Run() : void
-    - HandlePlayerTurn() : void
+    - HandlePlayerTurn(cmd : Command) : void
+    - MovePlayer(dx : int, dy : int) : void
     - HandleEnemiesTurn() : void
     - CleanDeadRobots() : void
+    - ShowMessage(message : const std::string&) : void
 }
 
+' ─── Визуализация ─────────────────────────────────────────────
 class Visualizer <<static utility>> {
     + {static} InitScreen() : void
     + {static} Shutdown() : void
@@ -109,35 +137,42 @@ class Visualizer <<static utility>> {
                             player_ptr : Robot*) : void
 }
 
-enum Config <<enumeration>> {
-    AttackCost
-    HealCost
-    HealAmount
-    VisibilityRadius
-    EnergyPerTurn
-    EnergyPerWait
-    PlayerHp
-    PlayerAttack
-    PlayerEnergy
-    PlayerSpeed
-    FriendHp
-    FriendAttack
-    FriendEnergy
-    FriendSpeed
-    EnemyHp
-    EnemyAttack
-    EnemyEnergy
-    EnemySpeed
+' ─── Конфиг (namespace → utility class) ──────────────────────
+class Config <<utility>> {
+    + {static} AttackCost : constexpr int
+    + {static} HealCost : constexpr int
+    + {static} HealAmount : constexpr int
+    + {static} VisibilityRadius : constexpr int
+    + {static} EnergyPerTurn : constexpr int
+    + {static} EnergyPerWait : constexpr int
+    + {static} PlayerHp : constexpr int
+    + {static} PlayerAttack : constexpr int
+    + {static} PlayerEnergy : constexpr int
+    + {static} PlayerSpeed : constexpr int
+    + {static} FriendHp : constexpr int
+    + {static} FriendAttack : constexpr int
+    + {static} FriendEnergy : constexpr int
+    + {static} FriendSpeed : constexpr int
+    + {static} EnemyHp : constexpr int
+    + {static} EnemyAttack : constexpr int
+    + {static} EnemyEnergy : constexpr int
+    + {static} EnemySpeed : constexpr int
 }
 
+' ─── Отношения ────────────────────────────────────────────────
 GameEngine *-- Field        : owns
 GameEngine o-- Robot        : manages
 Field      *-- Cell         : contains
 Cell       --> Robot        : holds ptr
 Robot      --> RobotType    : uses
-Cell       --> CellTerrain  : uses 
-Robot      ..> Config       : uses
+Cell       --> CellTerrain  : uses
+
 GameEngine ..> Config       : uses
 GameEngine ..> Visualizer   : uses
+GameEngine ..> InputHandler : uses
+GameEngine ..> Command      : uses
+InputHandler ..> Command    : produces
+Command    --> CommandType  : uses
+Robot      ..> Config       : uses
 
 @enduml

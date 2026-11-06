@@ -2,6 +2,8 @@
 #include "Visualizer.h"
 #include "InputHandler.h"
 #include "Config.h"
+#include "Robot/IAbility.h"
+#include "Robot/Abilities.h"
 #include <ncurses.h> 
 
 GameEngine::GameEngine(int width, int height) : field(width, height) {}
@@ -111,41 +113,35 @@ void GameEngine::UpdateVisibility() {
     }
 }
 
-void GameEngine::LoadLevel(const std::vector<std::string>& level) {
-    int e = 1, f = 1;
-    for (int y = 0; y < field.GetHeight(); y++) {
-        for (int x = 0; x < field.GetWidth(); x++) {
-            char c = level[y][x];
-            switch (c) {
-                case '#':
-                    field.GetCell(x, y).SetTerrain(Cell::Terrain::Wall);
-                    break;
-                case '~':
-                    field.GetCell(x, y).SetTerrain(Cell::Terrain::Swamp);
-                    break;
-                case 'R':
-                    SpawnRobot(
-                        std::make_shared<Robot>("Optimus", Robot::Type::Player,
-                            Config::PlayerHp, Config::PlayerAttack,
-                            Config::PlayerEnergy, Config::PlayerSpeed),
-                        x, y);
-                    break;
-                case 'F':
-                    SpawnRobot(
-                        std::make_shared<Robot>("Friend" + std::to_string(f), Robot::Type::Friend,
-                            Config::FriendHp, Config::FriendAttack,
-                            Config::FriendEnergy, Config::FriendSpeed),
-                        x, y);
-                    f++;
-                    break;
-                case 'E':
-                    SpawnRobot(
-                        std::make_shared<Robot>("Enemy" + std::to_string(e), Robot::Type::Enemy,
-                            Config::EnemyHp, Config::EnemyAttack,
-                            Config::EnemyEnergy, Config::EnemySpeed),
-                        x, y);
-                    e++;
+std::pair<int, int> GameEngine::SelectTargetCoordinate() {
+    int target_x = player_ptr->x;
+    int target_y = player_ptr->y;
+    
+    curs_set(1); 
+    
+    while (true) {
+        move(target_y, target_x); 
+        refresh();
+        
+        Command input = InputHandler::ReadFromKeyboard();
+        
+        if (input.type == Command::Type::Move) {
+            int next_x = target_x + input.dx;
+            int next_y = target_y + input.dy;
+            
+            if (next_x >= 0 && next_x < field.GetWidth() &&
+                next_y >= 0 && next_y < field.GetHeight()) {
+                target_x = next_x;
+                target_y = next_y;
             }
+        }
+        else if (input.type == Command::Type::Wait) {
+            curs_set(0);
+            return {target_x, target_y};
+        }
+        else if (input.type == Command::Type::Quit) {
+            curs_set(0);
+            return {-1, -1};
         }
     }
 }
@@ -163,6 +159,40 @@ void GameEngine::HandlePlayerTurn(Command cmd) {
         case Command::Type::Move:
             MovePlayer(cmd.dx, cmd.dy);
             return;
+            
+        case Command::Type::UseAbility: {
+            const auto& abilities = player_ptr->GetAbilities();
+            
+            if (cmd.ability_index >= abilities.size()) {
+                return; 
+            }
+            
+            std::shared_ptr<IAbility> chosen_ability = abilities[cmd.ability_index];
+            std::string name = chosen_ability->GetName();
+            
+            int tx = 0, ty = 0;
+            // Проверяем, требует ли способность интерактивного прицеливания
+            if (name == "Ranged Attack" || name == "Teleport") {
+                auto [target_x, target_y] = SelectTargetCoordinate();
+                if (target_x == -1 && target_y == -1) {
+                    return;
+                }
+                tx = target_x;
+                ty = target_y;
+            }
+            
+            bool success = player_ptr->UseAbility(cmd.ability_index, field, tx, ty);
+            
+            if (!success) {
+                mvprintw(field.GetHeight() + 1, 0, "[!] Action failed: check energy or target validation.");
+                getch();
+            }
+            
+            field.ClearVisibility();
+            UpdateVisibility();
+            Visualizer::UpdateScreen(field, current_move, player_ptr);
+            return;
+        }
     }
 }
 
@@ -228,7 +258,7 @@ bool GameEngine::Step(Command cmd) {
     for (auto& r : robots) {
         r->ChangeEnergy(Config::EnergyPerTurn);
     }
-
+#include <ncurses.h> 
     ++current_move;
     field.ClearVisibility();
     UpdateVisibility();

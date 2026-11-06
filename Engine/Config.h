@@ -2,11 +2,11 @@
 #define CONFIG_H_
 
 namespace Config {
-    // Цены действий
+    // Цены базовых действий
     constexpr int AttackCost = 20;
     constexpr int HealCost   = 20;
 
-    // Эффекты действий
+    // Эффекты базовых действий
     constexpr int HealAmount = 15;
 
     // Игровой цикл
@@ -29,6 +29,19 @@ namespace Config {
     constexpr int EnemyAttack  = 10;
     constexpr int EnemyEnergy  = 30;
     constexpr int EnemySpeed   = 1;
+
+    // ПАРАМЕТРЫ ДЛЯ СПОСОБНОСТЕЙ
+
+    // Энергозатраты
+    constexpr int AreaAttackEnergyCost = 25;
+    constexpr int RangedAttackEnergyCost = 20;
+    constexpr int SelfHealEnergyCost = 15;
+    constexpr int TeleportEnergyCost = 30;
+
+    // Сила эффектов
+    constexpr int AreaAttackDamage = 15;
+    constexpr int RangedAttackDamage = 20;
+    constexpr int SelfHealAmount = 20;
 }
 
 #endif
