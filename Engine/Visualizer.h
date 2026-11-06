@@ -1,5 +1,5 @@
 #ifndef VISUALIZER_H_
-#define VISUALISER_H_
+#define VISUALIZER_H_
 
 class Field;
 class Robot;
