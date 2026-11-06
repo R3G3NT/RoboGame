@@ -13,7 +13,7 @@ private:
     Robot* player_ptr = nullptr;
     int current_move = 1;
 
-    void HandlePlayerTurn(Command cmd);
+    bool HandlePlayerTurn(Command cmd);
     void MovePlayer(int dx, int dy);
     void HandleEnemiesTurn();
     void CleanDeadRobots();

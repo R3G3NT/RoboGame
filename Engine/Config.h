@@ -39,7 +39,7 @@ namespace Config {
     constexpr int TeleportEnergyCost = 30;
 
     // Сила эффектов
-    constexpr int AreaAttackDamage = 15;
+    constexpr int AreaAttackDamage = 20;
     constexpr int RangedAttackDamage = 20;
     constexpr int SelfHealAmount = 20;
 }

@@ -1,6 +1,7 @@
 #include "Visualizer.h"
 #include "Field/Field.h"
 #include "Robot/Robot.h"
+#include "Robot/IAbility.h"
 #include <ncurses.h>
 
 void Visualizer::InitScreen() {
@@ -65,6 +66,22 @@ void Visualizer::DrawStatus(Robot* robot) {
     printw("RANK: %d\n", robot->GetRank());
     printw("EXP: %d/%d\n", robot->GetExp(), robot->GetExpToNextRank());
     printw("POS: (%d, %d)\n", robot->x, robot->y);
+
+    printw("\n=== AVAILABLE ABILITIES ===\n");
+    
+    const auto& abilities = robot->GetAbilities();
+    
+    if (abilities.empty()) {
+        printw(" No abilities learned yet.\n");
+    } 
+    else {
+        for (size_t i = 0; i < abilities.size(); i++) {
+            printw(" [%d] %-15s (%d EN)\n", 
+                       static_cast<int>(i + 1), 
+                       abilities[i]->GetName().c_str(), 
+                       abilities[i]->GetEnergyCost());
+        }
+    }
 }
 
 void Visualizer::UpdateScreen(Field& field, int current_move, Robot* player_ptr) {

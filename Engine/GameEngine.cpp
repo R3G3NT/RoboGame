@@ -146,8 +146,8 @@ std::pair<int, int> GameEngine::SelectTargetCoordinate() {
     }
 }
 
-void GameEngine::HandlePlayerTurn(Command cmd) {
-    if (!player_ptr) return;
+bool GameEngine::HandlePlayerTurn(Command cmd) {
+    if (!player_ptr) return true;
 
     switch (cmd.type) {
         case Command::Type::Quit:
@@ -155,27 +155,26 @@ void GameEngine::HandlePlayerTurn(Command cmd) {
             exit(0);
         case Command::Type::Wait:
             player_ptr->ChangeEnergy(Config::EnergyPerWait);
-            return;
+            return true; 
         case Command::Type::Move:
             MovePlayer(cmd.dx, cmd.dy);
-            return;
+            return true; 
             
         case Command::Type::UseAbility: {
             const auto& abilities = player_ptr->GetAbilities();
             
             if (cmd.ability_index >= abilities.size()) {
-                return; 
+                return false; 
             }
             
             std::shared_ptr<IAbility> chosen_ability = abilities[cmd.ability_index];
             std::string name = chosen_ability->GetName();
             
             int tx = 0, ty = 0;
-            // Проверяем, требует ли способность интерактивного прицеливания
             if (name == "Ranged Attack" || name == "Teleport") {
                 auto [target_x, target_y] = SelectTargetCoordinate();
                 if (target_x == -1 && target_y == -1) {
-                    return;
+                    return false;
                 }
                 tx = target_x;
                 ty = target_y;
@@ -191,8 +190,10 @@ void GameEngine::HandlePlayerTurn(Command cmd) {
             field.ClearVisibility();
             UpdateVisibility();
             Visualizer::UpdateScreen(field, current_move, player_ptr);
-            return;
+            return false; 
         }
+        default:
+            return false;
     }
 }
 
@@ -258,7 +259,7 @@ bool GameEngine::Step(Command cmd) {
     for (auto& r : robots) {
         r->ChangeEnergy(Config::EnergyPerTurn);
     }
-#include <ncurses.h> 
+
     ++current_move;
     field.ClearVisibility();
     UpdateVisibility();
@@ -270,5 +271,36 @@ void GameEngine::Run() {
     UpdateVisibility();
     Visualizer::UpdateScreen(field, current_move, player_ptr);
 
-    while (Step(InputHandler::ReadFromKeyboard())) { }
+    while (true) {
+        bool player_turn_ended = false;
+
+        while (!player_turn_ended) {
+            const auto& abilities = player_ptr->GetAbilities();
+            bool can_use_any_ability = false;
+            
+            for (const auto& ability : abilities) {
+                if (player_ptr->GetEnergy() >= ability->GetEnergyCost()) {
+                    can_use_any_ability = true;
+                    break;
+                }
+            }
+
+            if (!can_use_any_ability) {
+                mvprintw(field.GetHeight() + 1, 0, "[!] No energy for abilities! You must Move or Wait.");
+                refresh();
+            }
+
+            Command cmd = InputHandler::ReadFromKeyboard();
+
+            if (!can_use_any_ability && cmd.type == Command::Type::UseAbility) {
+                continue; 
+            }
+
+            player_turn_ended = HandlePlayerTurn(cmd);
+        }
+
+        if (!Step(Command{})) { 
+            break; 
+        }
+    }
 }
