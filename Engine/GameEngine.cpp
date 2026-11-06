@@ -20,6 +20,11 @@ void GameEngine::SpawnRobot(std::shared_ptr<Robot> robot, int x, int y) {
     }
 }
 
+/**
+ * @brief Перемещает робота по игровому полю в заданном направлении с учетом его скорости.
+ * @return true — если робот наткнулся на другого робота и произошло взаимодействие (Interact).
+ * @return false — если робот просто успешно прошел весь маршрут или уперся в стену/границу поля.
+ */
 bool GameEngine::MoveRobot(int from_x, int from_y, int dx, int dy) {
     if (!field.GetCell(from_x, from_y).HasRobot()) {
         return false;
@@ -146,6 +151,11 @@ std::pair<int, int> GameEngine::SelectTargetCoordinate() {
     }
 }
 
+/**
+ * @brief Обрабатывает одиночную команду игрока в рамках его комплексного хода.
+ * @return true — если игрок совершил глобальное действие, ЗАВЕРШАЮЩЕЕ его ход (шаг или пропуск хода).
+ * @return false — если игрок применил способность (ход продолжается, он может скастовать что-то еще).
+ */
 bool GameEngine::HandlePlayerTurn(Command cmd) {
     if (!player_ptr) return true;
 
@@ -233,8 +243,12 @@ void GameEngine::ShowMessage(const std::string& message) {
     getch();
 }
 
-bool GameEngine::Step(Command cmd) {
-    HandlePlayerTurn(cmd);
+/**
+ * @brief Выполняет ход игры (ход ИИ врагов, очистка погибших, проверка победы/проигрыша).
+ * @return true — игра продолжается,
+ * @return false — игра завершена (игрок погиб или все враги уничтожены).
+ */
+bool GameEngine::Step() {
     CleanDeadRobots();
     HandleEnemiesTurn();
     CleanDeadRobots();
@@ -299,8 +313,6 @@ void GameEngine::Run() {
             player_turn_ended = HandlePlayerTurn(cmd);
         }
 
-        if (!Step(Command{})) { 
-            break; 
-        }
+        if (!Step()) break; 
     }
 }

@@ -30,7 +30,7 @@ public:
     bool MoveRobot(int from_x, int from_y, int dx, int dy);
     void UpdateVisibility();
 
-    bool Step(Command cmd);
+    bool Step();
 
     void Run();
 };
