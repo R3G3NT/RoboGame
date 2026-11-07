@@ -190,6 +190,34 @@ std::pair<int, int> GameEngine::SelectTargetCoordinate() {
     }
 }
 
+void GameEngine::MovePlayer(int dx, int dy) {
+    while ((dx != 0 || dy != 0) && player_ptr->GetSpeed() != 0) {
+        bool was_interacted = MoveRobot(player_ptr->x, player_ptr->y, dx, dy);
+        player_ptr->ChangeSpeed(-1);
+
+        field.ClearVisibility();
+        UpdateVisibility();
+        Visualizer::UpdateScreen(field, current_move, player_ptr);
+
+        dx = dy = 0;
+        if (player_ptr->GetSpeed() != 0 && !was_interacted) {
+            Command next = InputHandler::ReadFromKeyboard();
+            if (next.type == Command::Type::Quit) {
+                Visualizer::Shutdown();
+                exit(0);
+            }
+            else if (next.type == Command::Type::Move) {
+                dx = next.dx;
+                dy = next.dy;
+            }
+        }
+    }
+
+    while (player_ptr->GetSpeed() < player_ptr->GetMaxSpeed()) {
+        player_ptr->ChangeSpeed(1);
+    }
+}
+
 /**
  * @brief Обрабатывает одиночную команду игрока в рамках его комплексного хода.
  * @return true — если игрок совершил глобальное действие, ЗАВЕРШАЮЩЕЕ его ход (шаг или пропуск хода).
@@ -243,34 +271,6 @@ bool GameEngine::HandlePlayerTurn(Command cmd) {
         }
         default:
             return false;
-    }
-}
-
-void GameEngine::MovePlayer(int dx, int dy) {
-    while ((dx != 0 || dy != 0) && player_ptr->GetSpeed() != 0) {
-        bool was_interacted = MoveRobot(player_ptr->x, player_ptr->y, dx, dy);
-        player_ptr->ChangeSpeed(-1);
-
-        field.ClearVisibility();
-        UpdateVisibility();
-        Visualizer::UpdateScreen(field, current_move, player_ptr);
-
-        dx = dy = 0;
-        if (player_ptr->GetSpeed() != 0 && !was_interacted) {
-            Command next = InputHandler::ReadFromKeyboard();
-            if (next.type == Command::Type::Quit) {
-                Visualizer::Shutdown();
-                exit(0);
-            }
-            else if (next.type == Command::Type::Move) {
-                dx = next.dx;
-                dy = next.dy;
-            }
-        }
-    }
-
-    while (player_ptr->GetSpeed() < player_ptr->GetMaxSpeed()) {
-        player_ptr->ChangeSpeed(1);
     }
 }
 

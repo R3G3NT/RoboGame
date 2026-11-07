@@ -42,7 +42,7 @@ public:
 
                     if (cell.HasRobot() && cell.GetRobot()->GetType() == Robot::Type::Enemy) {
                         Robot* target = cell.GetRobot();
-                        target->ChangeHp(-Config::AreaAttackDamage); 
+                        target->TakeDamage(Config::AreaAttackDamage); 
                         hit_anyone = true;
                     }
                 }
@@ -82,7 +82,7 @@ public:
         if (cell.GetRobot()->GetType() == Robot::Type::Enemy) {
             // Увеличиваем урон в зависимости от уровня способности
             int final_damage = Config::RangedAttackDamage + (level - 1) * 15;
-            target->ChangeHp(-final_damage);
+            target->TakeDamage(final_damage);
             user->ChangeEnergy(-GetEnergyCost());
             user->AddExp(5);
             return true;

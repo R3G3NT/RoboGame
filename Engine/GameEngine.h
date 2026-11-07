@@ -32,7 +32,6 @@ public:
     void UpdateVisibility();
 
     bool Step();
-
     void Run();
 };
 

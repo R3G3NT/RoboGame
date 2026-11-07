@@ -2,6 +2,8 @@
 #include "IAbility.h"
 #include "Abilities.h"
 #include "Engine/Config.h"
+#include "IStatus.h"
+#include "Statuses.h"
 #include <algorithm>
 
 Robot::Robot(std::string name, Type type, int hp, int attack, int energy, int speed)
@@ -72,7 +74,7 @@ void Robot::Interact(Robot* other) {
 
     if (is_enemy) {
         if (this->energy >= Config::AttackCost) {
-            other->ChangeHp(-this->attack_power);
+            other->TakeDamage(this->attack_power);
             this->ChangeEnergy(-Config::AttackCost);
             this->AddExp(5);
         }
@@ -101,4 +103,67 @@ bool Robot::UseAbility(size_t index, Field& field, int target_x, int target_y) {
     }
     
     return abilities[index]->Use(this, field, target_x, target_y);
+}
+
+void Robot::ApplyStatus(std::shared_ptr<IStatus> new_status) {
+    if (!new_status) return;
+
+    // Ищем, нет ли уже у робота статуса с таким же именем
+    for (auto& current_status : statuses) {
+        if (current_status->GetName() == new_status->GetName()) {
+            current_status->Stack(new_status.get());
+            return;
+        }
+    }
+
+    statuses.push_back(new_status);
+}
+
+void Robot::UpdateStatusesAtTurnStart() {
+    for (auto& status : statuses) {
+        status->OnTurnStart(this);
+    }
+    std::erase_if(statuses, [](const std::shared_ptr<IStatus>& s) { return s->IsExpired(); });
+}
+
+void Robot::UpdateStatusesAtTurnEnd() {
+    for (auto& status : statuses) {
+        status->OnTurnEnd(this);
+    }
+    std::erase_if(statuses, [](const std::shared_ptr<IStatus>& s) { return s->IsExpired(); });
+}
+
+bool Robot::CanMove() const {
+    for (const auto& status : statuses) {
+        if (!status->CanMove()) return false;
+    }
+    return true;
+}
+
+bool Robot::CanUseAbilities() {
+    bool allowed = true;
+    for (auto& status : statuses) {
+        if (!status->CanUseAbilities()) {
+            allowed = false;
+        }
+        // Оповещаем статусы о попытке использовать способность (триггер для сброса Перегрузки)
+        status->OnAbilityAttempt(); 
+    }
+    std::erase_if(statuses, [](const std::shared_ptr<IStatus>& s) { return s->IsExpired(); });
+    return allowed;
+}
+
+void Robot::TakeDamage(int damage) {
+    if (damage <= 0) return;
+
+    int final_damage = damage;
+    for (auto& status : statuses) {
+        final_damage = status->ProcessIncomingDamage(final_damage);
+    }
+
+    if (final_damage > 0) {
+        ChangeHp(-final_damage);
+    }
+    
+    std::erase_if(statuses, [](const std::shared_ptr<IStatus>& s) { return s->IsExpired(); });
 }

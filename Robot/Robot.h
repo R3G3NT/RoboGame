@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 
+class IStatus;
 class IAbility; 
 class Field;
 
@@ -23,6 +24,7 @@ private:
     int rank = 1;
 
     std::vector<std::shared_ptr<IAbility>> abilities;
+    std::vector<std::shared_ptr<IStatus>> statuses;
 
 public:
     int x, y;
@@ -54,6 +56,15 @@ public:
     const std::vector<std::shared_ptr<IAbility>>& GetAbilities() const;
 
     bool UseAbility(size_t index, Field& field, int target_x = 0, int target_y = 0);
+
+    void ApplyStatus(std::shared_ptr<IStatus> new_status);
+    void UpdateStatusesAtTurnStart();
+    void UpdateStatusesAtTurnEnd();
+
+    bool CanMove() const;
+    bool CanUseAbilities();
+
+    void TakeDamage(int damage);
 
 private:
     bool CheckRankUp();
