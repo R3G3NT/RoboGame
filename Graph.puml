@@ -2,13 +2,14 @@
 left to right direction
 skinparam linetype ortho
 
-' ─── Данные поля ──────────────────────────────────────────────
+' Данные поля
 class Cell {
     - terrain : Terrain
     - visible : bool
     - robot : Robot*
+    - cell_statuses : std::vector<std::shared_ptr<IStatus>>
     __
-    + Cell(p_terrain : Terrain)
+    + Cell(terrain : Terrain)
     + GetTerrain() : Terrain
     + IsWalkable() : bool
     + IsVisible() : bool
@@ -18,6 +19,9 @@ class Cell {
     + HasRobot() : bool
     + SetRobot(other : Robot*) : void
     + RemoveRobot() : void
+    + AddCellStatus(status : std::shared_ptr<IStatus>) : void
+    + GetCellStatuses() : const std::vector<std::shared_ptr<IStatus>>&
+    + TransferRandomStatusToRobot(target_robot : Robot*) : void
 }
 
 enum "Cell::Terrain" as CellTerrain <<enumeration>> {
@@ -39,7 +43,7 @@ class Field {
     + ClearVisibility() : void
 }
 
-' ─── Сущности ─────────────────────────────────────────────────
+' Сущности
 class Robot {
     - name : std::string
     - type : Type
@@ -53,12 +57,12 @@ class Robot {
     - exp : int
     - exp_for_next_rank : int
     - rank : int
+    - abilities : std::vector<std::shared_ptr<IAbility>>
+    - statuses : std::vector<std::shared_ptr<IStatus>>
     + x : int
     + y : int
     __
-    + Robot(name : std::string, type : Type,
-            hp : int, attack : int,
-            energy : int, speed : int)
+    + Robot(name : std::string, type : Type, hp : int, attack : int, energy : int, speed : int)
     + GetName() : std::string
     + GetType() : Type
     + GetHp() : int
@@ -75,9 +79,19 @@ class Robot {
     + ChangeEnergy(amount : int) : void
     + ChangeSpeed(amount : int) : void
     + SetMaxSpeed(new_max_speed : int) : void
-    + AddExp(amount : int) : void
+    + AddExp(amount : int) : bool
     + Interact(other : Robot*) : void
-    - CheckRankUp() : void
+    + AddAbility(ability : std::shared_ptr<IAbility>) : void
+    + GetAbilities() : const std::vector<std::shared_ptr<IAbility>>&
+    + UseAbility(index : size_t, field : Field&, target_x : int, target_y : int) : bool
+    + ApplyStatus(new_status : std::shared_ptr<IStatus>) : void
+    + UpdateStatusesAtTurnStart() : void
+    + UpdateStatusesAtTurnEnd() : void
+    + CanMove() : bool
+    + CanUseAbilities() : bool
+    + TakeDamage(damage : int) : void
+    + GetStatuses() : const std::vector<std::shared_ptr<IStatus>>&
+    - CheckRankUp() : bool
 }
 
 enum "Robot::Type" as RobotType <<enumeration>> {
@@ -86,11 +100,125 @@ enum "Robot::Type" as RobotType <<enumeration>> {
     Enemy
 }
 
-' ─── Ввод ─────────────────────────────────────────────────────
+' Полиморфная система способностей
+interface IAbility {
+    + {abstract} ~IAbility()
+    + {abstract} GetName() : std::string
+    + {abstract} GetEnergyCost() : int
+    + {abstract} Use(user : Robot*, field : Field&, target_x : int, target_y : int) : bool
+    + {abstract} Upgrade() : void
+    + {abstract} GetLevel() : int
+}
+
+class AreaAttackAbility {
+    - level : int
+    + GetName() : std::string
+    + GetEnergyCost() : int
+    + GetLevel() : int
+    + Upgrade() : void
+    + Use(user : Robot*, field : Field&, tx : int, ty : int) : bool
+}
+
+class RangedAttackAbility {
+    - level : int
+    + GetName() : std::string
+    + GetEnergyCost() : int
+    + GetLevel() : int
+    + Upgrade() : void
+    + Use(user : Robot*, field : Field&, tx : int, ty : int) : bool
+}
+
+class HealAbility {
+    - level : int
+    + GetName() : std::string
+    + GetEnergyCost() : int
+    + GetLevel() : int
+    + Upgrade() : void
+    + Use(user : Robot*, field : Field&, tx : int, ty : int) : bool
+}
+
+class TeleportAbility {
+    - level : int
+    + GetName() : std::string
+    + GetEnergyCost() : int
+    + GetLevel() : int
+    + Upgrade() : void
+    + Use(user : Robot*, field : Field&, tx : int, ty : int) : bool
+}
+
+IAbility <|-- AreaAttackAbility
+IAbility <|-- RangedAttackAbility
+IAbility <|-- HealAbility
+IAbility <|-- TeleportAbility
+
+' Полиморфная система статус-эффектов
+interface IStatus {
+    + {abstract} ~IStatus()
+    + {abstract} GetName() : std::string
+    + {abstract} GetValue() : int
+    + {abstract} IsExpired() : bool
+    + {abstract} Stack(other : IStatus*) : void
+    + virtual OnTurnStart(robot : Robot*) : void
+    + virtual OnTurnEnd(robot : Robot*) : void
+    + virtual CanMove() : bool
+    + virtual CanUseAbilities() : bool
+    + virtual ProcessIncomingDamage(damage : int) : int
+    + virtual OnAbilityAttempt() : void
+}
+
+class SlowStatus {
+    - duration : int
+    + GetName() : std::string
+    + GetValue() : int
+    + IsExpired() : bool
+    + CanMove() : bool
+    + Stack(other : IStatus*) : void
+    + OnTurnEnd(robot : Robot*) : void
+}
+
+class OverloadStatus {
+    - expired : bool
+    + GetName() : std::string
+    + GetValue() : int
+    + IsExpired() : bool
+    + CanUseAbilities() : bool
+    + Stack(other : IStatus*) : void
+    + OnAbilityAttempt() : void
+}
+
+class BurnStatus {
+    - duration : int
+    - damage_per_turn : int
+    + BurnStatus(initial_duration : int)
+    + GetName() : std::string
+    + GetValue() : int
+    + IsExpired() : bool
+    + Stack(other : IStatus*) : void
+    + OnTurnStart(robot : Robot*) : void
+}
+
+class ShieldStatus {
+    - shield_points : int
+    + ShieldStatus(points : int)
+    + GetName() : std::string
+    + GetValue() : int
+    + IsExpired() : bool
+    + Stack(other : IStatus*) : void
+    + ProcessIncomingDamage(damage : int) : int
+}
+
+IStatus <|-- SlowStatus
+IStatus <|-- OverloadStatus
+IStatus <|-- BurnStatus
+IStatus <|-- ShieldStatus
+
+' Ввод
 struct Command {
     + type : Type
     + dx : int
     + dy : int
+    + ability_index : int
+    + mode_index : int
 }
 
 enum "Command::Type" as CommandType <<enumeration>> {
@@ -98,46 +226,65 @@ enum "Command::Type" as CommandType <<enumeration>> {
     Move
     Wait
     Quit
+    UseAbility
+    ToggleMode
 }
 
 class InputHandler <<static utility>> {
     + {static} ReadFromKeyboard() : Command
 }
 
-' ─── Движок ───────────────────────────────────────────────────
+' Движок
 class GameEngine {
     - robots : std::vector<std::shared_ptr<Robot>>
-    - player_ptr : Robot*
+    - player_ptr : std::shared_ptr<Robot>
+    - last_player_rank : int
     - current_move : int
     + field : Field
     __
     + GameEngine(width : int, height : int)
-    + SpawnRobot(robot : std::shared_ptr<Robot>,
-                 x : int, y : int) : void
-    + MoveRobot(from_x : int, from_y : int,
-                dx : int, dy : int) : bool
+    + SpawnRobot(robot : std::shared_ptr<Robot>, x : int, y : int) : void
+    + MoveRobot(from_x : int, from_y : int, dx : int, dy : int) : bool
     + UpdateVisibility() : void
-    + LoadLevel(level : const std::vector<std::string>&) : void
-    + Step(cmd : Command) : bool
+    + SelectTargetCoordinate() : std::pair<int, int>
+    + Step() : bool
     + Run() : void
-    - HandlePlayerTurn(cmd : Command) : void
+    - HandlePlayerTurn(cmd : Command) : bool
     - MovePlayer(dx : int, dy : int) : void
     - HandleEnemiesTurn() : void
     - CleanDeadRobots() : void
     - ShowMessage(message : const std::string&) : void
 }
 
-' ─── Визуализация ─────────────────────────────────────────────
+' Менеджер загрузки
+class LevelLoader {
+    - {static} ShowAbilitySelectionMenu() : std::shared_ptr<IAbility>
+    - {static} GenerateRandomStatusesForCell(cell : Cell&) : void
+    __
+    + {static} Load(engine : GameEngine&, level : const std::vector<std::string>&) : void
+}
+
+' Визуализация 
 class Visualizer <<static utility>> {
+    - {static} current_render_mode : RenderMode
+    __
     + {static} InitScreen() : void
     + {static} Shutdown() : void
     + {static} Draw(field : Field&) : void
-    + {static} DrawStatus(robot : Robot*) : void
-    + {static} UpdateScreen(field : Field&, current_move : int,
-                            player_ptr : Robot*) : void
+    + {static} DrawStatus(robot : std::shared_ptr<Robot>) : void
+    + {static} UpdateScreen(field : Field&, current_move : int, player_ptr : std::shared_ptr<Robot>) : void
+    + {static} ShowUpgradeMenu(player : std::shared_ptr<Robot>) : void
+    + {static} SetRenderMode(mode : RenderMode) : void
 }
 
-' ─── Конфиг (namespace → utility class) ──────────────────────
+enum "Visualizer::RenderMode" as RenderMode <<enumeration>> {
+    Normal
+    HighlightEnemies
+    HighlightWalls
+    HighlightTraps
+}
+
+' Конфиг 
 class Config <<utility>> {
     + {static} AttackCost : constexpr int
     + {static} HealCost : constexpr int
@@ -157,22 +304,36 @@ class Config <<utility>> {
     + {static} EnemyAttack : constexpr int
     + {static} EnemyEnergy : constexpr int
     + {static} EnemySpeed : constexpr int
+    + {static} AreaAttackEnergyCost : constexpr int
+    + {static} RangedAttackEnergyCost : constexpr int
+    + {static} SelfHealEnergyCost : constexpr int
+    + {static} TeleportEnergyCost : constexpr int
+    + {static} AreaAttackDamage : constexpr int
+    + {static} RangedAttackDamage : constexpr int
+    + {static} SelfHealAmount : constexpr int
 }
 
-' ─── Отношения ────────────────────────────────────────────────
-GameEngine *-- Field        : owns
-GameEngine o-- Robot        : manages
-Field      *-- Cell         : contains
-Cell       --> Robot        : holds ptr
-Robot      --> RobotType    : uses
-Cell       --> CellTerrain  : uses
+' Отношения 
+GameEngine *-- Field          : owns
+GameEngine o-- Robot          : manages
+Field      *-- Cell           : contains
+Cell       --> Robot          : holds ptr
+Robot      --> RobotType      : uses
+Cell       --> CellTerrain    : uses
+Visualizer --> RenderMode     : uses
 
-GameEngine ..> Config       : uses
-GameEngine ..> Visualizer   : uses
-GameEngine ..> InputHandler : uses
-GameEngine ..> Command      : uses
-InputHandler ..> Command    : produces
-Command    --> CommandType  : uses
-Robot      ..> Config       : uses
+Robot      *-- IAbility       : polimorphically owns
+Robot      *-- IStatus        : polimorphically owns
+Cell       o-- IStatus        : traps contain
 
+GameEngine ..> Config         : uses
+GameEngine ..> Visualizer     : uses
+GameEngine ..> InputHandler   : uses
+GameEngine ..> Command        : uses
+
+LevelLoader ..> GameEngine    : populates
+LevelLoader ..> Config        : uses
+InputHandler ..> Command      : produces
+Command      --> CommandType  : uses
+Robot        ..> Config       : uses
 @enduml

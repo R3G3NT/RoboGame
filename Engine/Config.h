@@ -18,7 +18,7 @@ namespace Config {
     constexpr int PlayerHp     = 100;
     constexpr int PlayerAttack = 20;
     constexpr int PlayerEnergy = 60;
-    constexpr int PlayerSpeed  = 2;
+    constexpr int PlayerSpeed  = 1;
 
     constexpr int FriendHp     = 30;
     constexpr int FriendAttack = 5;
