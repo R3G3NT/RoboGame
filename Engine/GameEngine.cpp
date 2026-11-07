@@ -219,13 +219,6 @@ std::pair<int, int> GameEngine::SelectTargetCoordinate() {
 
 void GameEngine::MovePlayer(int dx, int dy) {
     while ((dx != 0 || dy != 0) && player_ptr->GetSpeed() != 0) {
-        if (!player_ptr->CanMove()) {
-            mvprintw(field.GetHeight() + 1, 0, "[!] Action failed: Robot is Slowed!");
-            getch();
-            Visualizer::UpdateScreen(field, current_move, player_ptr);
-            break;
-        }
-
         bool was_interacted = MoveRobot(player_ptr->x, player_ptr->y, dx, dy);
         player_ptr->ChangeSpeed(-1);
 
@@ -268,6 +261,12 @@ bool GameEngine::HandlePlayerTurn(Command cmd) {
             player_ptr->ChangeEnergy(Config::EnergyPerWait);
             return true; 
         case Command::Type::Move:
+            if (!player_ptr->CanMove()) {
+                mvprintw(field.GetHeight() + 1, 0, "[!] Action failed: Robot is Slowed!");
+                getch();
+                Visualizer::UpdateScreen(field, current_move, player_ptr);
+                return true;
+            }
             MovePlayer(cmd.dx, cmd.dy);
             return true; 
             

@@ -91,6 +91,7 @@ void LevelLoader::GenerateRandomStatusesForCell(Cell& cell) {
 
     for (int i = 0; i < num_statuses_to_add; ++i) {
         int status_type = std::rand() % 4;
+        status_type = 0;
         std::shared_ptr<IStatus> new_status = nullptr;
 
         switch (status_type) {

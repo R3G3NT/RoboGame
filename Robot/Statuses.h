@@ -8,7 +8,7 @@
 
 class SlowStatus : public IStatus {
 private:
-    int duration = 1;
+    int duration = 2;
 
 public:
     std::string GetName() const override { return "Slow"; }
@@ -18,7 +18,7 @@ public:
 
     void Stack(IStatus* other) override {
         if (other && other->GetName() == this->GetName()) {
-            this->duration += other->GetValue();
+            this->duration++;
         }
     }
 
