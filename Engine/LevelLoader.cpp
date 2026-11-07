@@ -83,14 +83,14 @@ void LevelLoader::GenerateRandomStatusesForCell(Cell& cell) {
     int roll = std::rand() % 100;
     int num_statuses_to_add = 0;
 
-    if (roll >= 80 && roll < 95) {
+    if (roll >= 90 && roll < 95) {
         num_statuses_to_add = 1;
-    } else if (roll >= 95) {
+    } else if (roll >= 99) {
         num_statuses_to_add = 2;
     }
 
     for (int i = 0; i < num_statuses_to_add; ++i) {
-        int status_type = std::rand() % 3;
+        int status_type = std::rand() % 4;
         std::shared_ptr<IStatus> new_status = nullptr;
 
         switch (status_type) {
@@ -103,6 +103,9 @@ void LevelLoader::GenerateRandomStatusesForCell(Cell& cell) {
             case 2:
                 // Горение на случайное количество ходов от 2 до 4
                 new_status = std::make_shared<BurnStatus>(2 + std::rand() % 3);
+                break;
+            case 3:
+                new_status = std::make_shared<ShieldStatus>(25);
                 break;
         }
         cell.AddCellStatus(new_status);

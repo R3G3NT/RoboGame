@@ -66,6 +66,8 @@ public:
 
     void TakeDamage(int damage);
 
+    const std::vector<std::shared_ptr<IStatus>>& GetStatuses() const;
+
 private:
     bool CheckRankUp();
 };

@@ -3,7 +3,10 @@
 #include "Robot/Robot.h"
 #include "Robot/IAbility.h"
 #include "Robot/Abilities.h"
+#include "Robot/IStatus.h"
 #include <ncurses.h>
+
+Visualizer::RenderMode Visualizer::current_render_mode = Visualizer::RenderMode::Normal;
 
 void Visualizer::InitScreen() {
     initscr();             // Врубаем ncurses
@@ -11,11 +14,24 @@ void Visualizer::InitScreen() {
     noecho();              // Не выводим нажатые клавиши на экране
     keypad(stdscr, TRUE);  // Разрешаем стрелочки и F-клавиши
     curs_set(0);           // Прячем мигающий курсор
-    clear();               // Чистим экран
+
+if (has_colors()) {
+        start_color();
+        // Настраиваем цветовые пары: init_pair(ID, цвет_текста, цвет_фона)
+        init_pair(1, COLOR_WHITE, COLOR_BLACK);  // Пара 1: СТАНДАРТНЫЙ режим (Белый текст)
+        init_pair(2, COLOR_RED, COLOR_BLACK);    // Пара 2: Красный для Врагов
+        init_pair(3, COLOR_BLUE, COLOR_BLACK);   // Пара 3: Синий для Стен
+        init_pair(4, COLOR_BLACK, COLOR_GREEN); // Пара 4: Фиолетовый для Ловушек
+    }
+    clear();
 }
 
 void Visualizer::Shutdown() {
     endwin(); // Восстанавливаем стандартные настройки терминала
+}
+
+void Visualizer::SetRenderMode(RenderMode mode) { 
+    current_render_mode = mode; 
 }
 
 void Visualizer::Draw(Field& field) {
@@ -25,22 +41,48 @@ void Visualizer::Draw(Field& field) {
 
             if (!cell.IsVisible()) {
                 printw(".");
+                continue;
+            }
+
+            int active_color_pair = 1;
+
+            if (current_render_mode == RenderMode::Normal) {
+                active_color_pair = 1;
+            }
+            else if (current_render_mode == RenderMode::HighlightEnemies) {
+                if (cell.HasRobot() && cell.GetRobot()->GetType() == Robot::Type::Enemy) {
+                    active_color_pair = 2; // Красный для врагов
+                } else {
+                    active_color_pair = 1; // Все остальные объекты остаются стандартными
+                }
             } 
-            else if (cell.GetTerrain() == Cell::Terrain::Wall) {
+            else if (current_render_mode == RenderMode::HighlightWalls) {
+                if (cell.GetTerrain() == Cell::Terrain::Wall) {
+                    active_color_pair = 3; // Синий для стен
+                } else {
+                    active_color_pair = 1;
+                }
+            } 
+            else if (current_render_mode == RenderMode::HighlightTraps) {
+                if (!cell.GetCellStatuses().empty()) {
+                    active_color_pair = 4; // Фиолетовый для ловушек
+                } else {
+                    active_color_pair = 1;
+                }
+            }
+
+            // Активируем выбранную цветовую пару
+            attron(COLOR_PAIR(active_color_pair));
+
+            // Стандартный вывод символов
+            if (cell.GetTerrain() == Cell::Terrain::Wall) {
                 printw("#");
             } 
             else if (cell.HasRobot()) {
                 Robot* robot = cell.GetRobot();
-                
-                if (robot->GetType() == Robot::Type::Player) {
-                    printw("R");
-                } 
-                else if (robot->GetType() == Robot::Type::Friend) {
-                    printw("F");
-                } 
-                else if (robot->GetType() == Robot::Type::Enemy) {
-                    printw("E");
-                }
+                if (robot->GetType() == Robot::Type::Player) printw("R");
+                else if (robot->GetType() == Robot::Type::Friend) printw("F");
+                else if (robot->GetType() == Robot::Type::Enemy) printw("E");
             } 
             else if (cell.GetTerrain() == Cell::Terrain::Swamp) {
                 printw("~");
@@ -48,6 +90,8 @@ void Visualizer::Draw(Field& field) {
             else {
                 printw(" ");
             }
+
+            attroff(COLOR_PAIR(active_color_pair));     
         }
         printw("\n");
     }
@@ -82,6 +126,29 @@ void Visualizer::DrawStatus(std::shared_ptr<Robot> robot) {
                        static_cast<int>(i + 1), 
                        ability_display_name.c_str(), 
                        abilities[i]->GetEnergyCost());
+        }
+    }
+
+    printw("\n=== ACTIVE STATUS EFFECTS ===\n");
+    const auto& statuses = robot->GetStatuses();
+    
+    if (statuses.empty()) {
+        printw(" No active status effects.\n");
+    } 
+    else {
+        for (size_t i = 0; i < statuses.size(); i++) {
+            std::string name = statuses[i]->GetName();
+            int value = statuses[i]->GetValue();
+            
+            if (name == "Shield") {
+                printw("%-10s : %d HP left\n", name.c_str(), value);
+            } 
+            else if (name == "Overload") {
+                printw("%-10s : Active until ability attempt\n", name.c_str());
+            }
+            else {
+                printw("%-10s : %d turns remaining\n", name.c_str(), value);
+            }
         }
     }
 }

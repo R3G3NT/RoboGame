@@ -144,6 +144,9 @@ public:
 
         field.GetCell(user->x, user->y).RemoveRobot();
         target_cell.SetRobot(user);
+        if (target_cell.GetCellStatuses().size() > 0) {
+            target_cell.TransferRandomStatusToRobot(target_cell.GetRobot());
+        }
 
         user->x = target_x;
         user->y = target_y;

@@ -218,14 +218,14 @@ std::pair<int, int> GameEngine::SelectTargetCoordinate() {
 }
 
 void GameEngine::MovePlayer(int dx, int dy) {
-    if (!player_ptr->CanMove()) {
-        mvprintw(field.GetHeight() + 1, 0, "[!] Action failed: Robot is Slowed!");
-        getch();
-        player_ptr->ChangeSpeed(-player_ptr->GetSpeed());
-        return;
-    }
-    
     while ((dx != 0 || dy != 0) && player_ptr->GetSpeed() != 0) {
+        if (!player_ptr->CanMove()) {
+            mvprintw(field.GetHeight() + 1, 0, "[!] Action failed: Robot is Slowed!");
+            getch();
+            Visualizer::UpdateScreen(field, current_move, player_ptr);
+            break;
+        }
+
         bool was_interacted = MoveRobot(player_ptr->x, player_ptr->y, dx, dy);
         player_ptr->ChangeSpeed(-1);
 
@@ -272,6 +272,13 @@ bool GameEngine::HandlePlayerTurn(Command cmd) {
             return true; 
             
         case Command::Type::UseAbility: {
+            if (!player_ptr->CanUseAbilities()) {
+                mvprintw(field.GetHeight() + 1, 0, "[!] Action failed: Robot is OVERLOADED!");
+                getch();
+                Visualizer::UpdateScreen(field, current_move, player_ptr);
+                return true;
+            }
+
             const auto& abilities = player_ptr->GetAbilities();
             
             if (cmd.ability_index >= abilities.size()) {
@@ -292,6 +299,7 @@ bool GameEngine::HandlePlayerTurn(Command cmd) {
             }
             
             bool success = player_ptr->UseAbility(cmd.ability_index, field, tx, ty);
+            CleanDeadRobots();
             
             if (!success) {
                 mvprintw(field.GetHeight() + 1, 0, "[!] Action failed: check energy or target validation.");
@@ -302,6 +310,27 @@ bool GameEngine::HandlePlayerTurn(Command cmd) {
             UpdateVisibility();
             Visualizer::UpdateScreen(field, current_move, player_ptr);
             return false; 
+        }
+        case Command::Type::ToggleMode: {
+            switch (cmd.mode_index) {
+                case 1:
+                    Visualizer::SetRenderMode(Visualizer::RenderMode::Normal);
+                    break;
+                case 2:
+                    Visualizer::SetRenderMode(Visualizer::RenderMode::HighlightEnemies);
+                    break;
+                case 3:
+                    Visualizer::SetRenderMode(Visualizer::RenderMode::HighlightWalls);
+                    break;
+                case 4:
+                    Visualizer::SetRenderMode(Visualizer::RenderMode::HighlightTraps);
+                    break;
+            }
+
+            field.ClearVisibility();
+            UpdateVisibility();
+            Visualizer::UpdateScreen(field, current_move, player_ptr);
+            return false;
         }
         default:
             return false;

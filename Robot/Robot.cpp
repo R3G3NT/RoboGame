@@ -167,3 +167,7 @@ void Robot::TakeDamage(int damage) {
     
     std::erase_if(statuses, [](const std::shared_ptr<IStatus>& s) { return s->IsExpired(); });
 }
+
+const std::vector<std::shared_ptr<IStatus>>& Robot::GetStatuses() const {
+    return statuses;
+}
