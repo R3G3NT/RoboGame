@@ -10,7 +10,8 @@
 class GameEngine {
 private:
     std::vector<std::shared_ptr<Robot>> robots;
-    Robot* player_ptr = nullptr;
+    std::shared_ptr<Robot> player_ptr = nullptr;
+    int last_player_rank = 1;
     int current_move = 1;
 
     bool HandlePlayerTurn(Command cmd);

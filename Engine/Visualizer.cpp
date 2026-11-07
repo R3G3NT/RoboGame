@@ -52,7 +52,7 @@ void Visualizer::Draw(Field& field) {
     }
 }
 
-void Visualizer::DrawStatus(Robot* robot) {
+void Visualizer::DrawStatus(std::shared_ptr<Robot> robot) {
     if (!robot) {
         printw(" No player \n");
         return;
@@ -76,15 +76,16 @@ void Visualizer::DrawStatus(Robot* robot) {
     } 
     else {
         for (size_t i = 0; i < abilities.size(); i++) {
+            std::string ability_display_name = abilities[i]->GetName() + " (LVL " + std::to_string(abilities[i]->GetLevel()) + ")";
             printw(" [%d] %-15s (%d EN)\n", 
                        static_cast<int>(i + 1), 
-                       abilities[i]->GetName().c_str(), 
+                       ability_display_name.c_str(), 
                        abilities[i]->GetEnergyCost());
         }
     }
 }
 
-void Visualizer::UpdateScreen(Field& field, int current_move, Robot* player_ptr) {
+void Visualizer::UpdateScreen(Field& field, int current_move, std::shared_ptr<Robot> player_ptr) {
     erase();
     Visualizer::Draw(field);
     printw("\n");

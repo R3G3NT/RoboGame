@@ -2,6 +2,7 @@
 #include "Visualizer.h"
 #include "InputHandler.h"
 #include "Config.h"
+#include "LevelLoader.h"
 #include "Robot/IAbility.h"
 #include "Robot/Abilities.h"
 #include <ncurses.h> 
@@ -11,7 +12,7 @@ GameEngine::GameEngine(int width, int height) : field(width, height) {}
 void GameEngine::SpawnRobot(std::shared_ptr<Robot> robot, int x, int y) {
     if (field.IsWalkable(x, y)) {
         if (robot->GetType() == Robot::Type::Player) {
-            player_ptr = robot.get();
+            player_ptr = robot;
         }
         robot->x = x;
         robot->y = y;
@@ -32,7 +33,7 @@ bool GameEngine::MoveRobot(int from_x, int from_y, int dx, int dy) {
 
     Robot* moving_robot = field.GetCell(from_x, from_y).GetRobot();
     int speed = moving_robot->GetSpeed();
-    if (moving_robot == player_ptr) {
+    if (moving_robot == player_ptr.get()) {
         speed = 1;
     }
     int x = from_x, y = from_y;
@@ -74,7 +75,7 @@ void GameEngine::CleanDeadRobots() {
     std::erase_if(robots, [this](std::shared_ptr<Robot>& robot) {
         if (robot->GetHp() <= 0) {
             field.GetCell(robot->x, robot->y).RemoveRobot();
-            if (robot.get() == player_ptr) {
+            if (robot == player_ptr) {
                 player_ptr = nullptr;
             }
             return true;
@@ -323,6 +324,10 @@ void GameEngine::Run() {
     UpdateVisibility();
     Visualizer::UpdateScreen(field, current_move, player_ptr);
 
+    if (player_ptr) {
+        last_player_rank = player_ptr->GetRank();
+    }
+
     while (true) {
         bool player_turn_ended = false;
 
@@ -350,7 +355,19 @@ void GameEngine::Run() {
 
             player_turn_ended = HandlePlayerTurn(cmd);
         }
+            
+        if (player_ptr && player_ptr->GetRank() != last_player_rank) {
+            LevelLoader::ShowUpgradeMenu(player_ptr);
+            
+            last_player_rank = player_ptr->GetRank();
+            
+            field.ClearVisibility();
+            UpdateVisibility();
+            Visualizer::UpdateScreen(field, current_move, player_ptr);
+        }
 
-        if (!Step()) break; 
+        if (!Step()) {
+            break;
+        }
     }
 }

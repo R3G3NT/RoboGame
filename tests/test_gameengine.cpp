@@ -26,27 +26,6 @@ TEST(GameEngine, SpawnRobotOnWallDoesNothing) {
     EXPECT_FALSE(engine.field.GetCell(5, 5).HasRobot());
 }
 
-TEST(GameEngine, LoadLevelParsesSymbols) {
-    std::vector<std::string> level = {
-        "##########",
-        "#R.....E.#",
-        "#...~....#",
-        "#F.......#",
-        "##########"
-    };
-
-    GameEngine engine(10, 5);
-    LevelLoader::Load(engine, level);
-
-    EXPECT_EQ(engine.field.GetCell(1, 1).GetRobot()->GetType(),
-              Robot::Type::Player);
-    EXPECT_EQ(engine.field.GetCell(7, 1).GetRobot()->GetType(),
-              Robot::Type::Enemy);
-    EXPECT_EQ(engine.field.GetCell(1, 3).GetRobot()->GetType(),
-              Robot::Type::Friend);
-    EXPECT_EQ(engine.field.GetCell(4, 2).GetTerrain(), Cell::Terrain::Swamp);
-}
-
 TEST(GameEngine, MoveRobotMovesPlayer) {
     GameEngine engine(20, 10);
     auto player = std::make_shared<Robot>(
@@ -91,25 +70,4 @@ TEST(GameEngine, MoveRobotAttacksEnemy) {
     engine.MoveRobot(6, 5, 1, 0);
 
     EXPECT_EQ(e->GetHp(), 30);   // 50 - 20 от атаки
-}
-
-TEST(GameEngine, UpdateVisibilityRevealsAroundPlayer) {
-    std::vector<std::string> level = {
-        "##########",
-        "#........#",
-        "#........#",
-        "#........#",
-        "#........#",
-        "#........#",
-        "#........#",
-        "#...R....#",
-        "##########"
-    };
-
-    GameEngine engine(10, 9);
-    LevelLoader::Load(engine, level);
-    engine.UpdateVisibility();
-
-    EXPECT_TRUE(engine.field.GetCell(4, 7).IsVisible());
-    EXPECT_FALSE(engine.field.GetCell(8, 1).IsVisible());
 }

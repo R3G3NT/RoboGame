@@ -29,10 +29,11 @@ void Robot::ChangeEnergy(int amount) {
     energy = std::clamp(energy + amount, 0, max_energy);
 }
 
-void Robot::AddExp(int amount) {
-    if (amount <= 0) return;
+//Возвращает true, если ранг повысился
+bool Robot::AddExp(int amount) {
+    if (amount <= 0) return false;
     exp += amount;
-    CheckRankUp();
+    return CheckRankUp();
 }
 
 void Robot::ChangeSpeed(int amount) {
@@ -45,9 +46,12 @@ void Robot::SetMaxSpeed(int new_max_speed) {
     max_speed = new_max_speed;
 }
 
-void Robot::CheckRankUp() {
+//Возвращает true, если ранг повысился
+bool Robot::CheckRankUp() {
+    bool leveled_up = false;
     while (exp >= exp_for_next_rank) {
         rank++;
+        leveled_up = true;
 
         max_hp += 25;
         max_energy += 25;
@@ -58,6 +62,7 @@ void Robot::CheckRankUp() {
         exp -= exp_for_next_rank;
         exp_for_next_rank *= 2;
     }
+    return leveled_up;
 }
 
 void Robot::Interact(Robot* other) {

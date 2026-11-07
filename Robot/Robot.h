@@ -45,7 +45,7 @@ public:
     void ChangeEnergy(int amount);
     void ChangeSpeed(int amount);
     void SetMaxSpeed(int new_max_speed);
-    void AddExp(int amount);
+    bool AddExp(int amount);
 
     void Interact(Robot* other);
 
@@ -56,7 +56,7 @@ public:
     bool UseAbility(size_t index, Field& field, int target_x = 0, int target_y = 0);
 
 private:
-    void CheckRankUp();
+    bool CheckRankUp();
 };
 
 #endif
