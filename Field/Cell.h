@@ -1,7 +1,11 @@
 #ifndef CELL_H_
 #define CELL_H_
 
+#include <vector>
+#include <memory>
+
 class Robot;
+class IStatus;
 
 class Cell {
 public:
@@ -11,6 +15,8 @@ private:
     Terrain terrain = Terrain::Floor;
     bool visible = false; 
     Robot* robot = nullptr;
+    
+    std::vector<std::shared_ptr<IStatus>> cell_statuses;
 
 public:
     Cell(Terrain terrain);
@@ -26,6 +32,11 @@ public:
     bool HasRobot() const;
     void SetRobot(Robot* other);
     void RemoveRobot();
+
+    void AddCellStatus(std::shared_ptr<IStatus> status);
+    const std::vector<std::shared_ptr<IStatus>>& GetCellStatuses() const;
+    
+    void TransferRandomStatusToRobot(Robot* target_robot);
 };
 
 #endif

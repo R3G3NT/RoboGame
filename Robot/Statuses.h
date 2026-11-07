@@ -54,7 +54,7 @@ public:
 class BurnStatus : public IStatus {
 private:
     int duration;
-    const int damage_per_turn = 10;
+    const int damage_per_turn = 5;
 
 public:
     BurnStatus(int initial_duration) : duration(initial_duration) {}

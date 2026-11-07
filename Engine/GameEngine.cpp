@@ -57,6 +57,10 @@ bool GameEngine::MoveRobot(int from_x, int from_y, int dx, int dy) {
             from_y = y;
             moving_robot->x = x;
             moving_robot->y = y;
+
+            if (target_cell.GetCellStatuses().size() > 0) {
+                target_cell.TransferRandomStatusToRobot(moving_robot);
+            }
         }
         else {
             break;
@@ -92,22 +96,39 @@ void GameEngine::HandleEnemiesTurn() {
 
         if (robots[i]->GetType() == Robot::Type::Enemy) {
             Robot* enemy = robots[i].get();
-            const auto& enemy_abilities = enemy->GetAbilities();
-            std::string ability_name = enemy_abilities[0]->GetName();
-
-            if (ability_name == "Self Heal" && enemy->GetHp() <= (enemy->GetMaxHp() / 4)) {
-                bool used_heal = enemy->UseAbility(0, field);
-                if (used_heal) {
-                    continue; 
-                }
+            
+            enemy->UpdateStatusesAtTurnStart();
+            if (enemy->GetHp() <= 0) {
+                continue; 
             }
 
-            // Рассчитываем вектор движения к игроку
             int dx = 0, dy = 0;
             if (player_ptr->x > enemy->x)      dx = 1;
             else if (player_ptr->x < enemy->x) dx = -1;
             else if (player_ptr->y > enemy->y) dy = 1;
             else if (player_ptr->y < enemy->y) dy = -1;
+
+            const auto& enemy_abilities = enemy->GetAbilities();
+            
+            if (enemy_abilities.empty()) {
+                if (enemy->CanMove()) {
+                    MoveRobot(robots[i]->x, robots[i]->y, dx, dy);
+                }
+                enemy->UpdateStatusesAtTurnEnd();
+                continue;
+            }
+
+            std::string ability_name = enemy_abilities[0]->GetName();
+
+            if (ability_name == "Self Heal" && enemy->GetHp() <= (enemy->GetMaxHp() / 4)) {
+                if (enemy->CanUseAbilities()) {
+                    bool used_heal = enemy->UseAbility(0, field);
+                    if (used_heal) {
+                        enemy->UpdateStatusesAtTurnEnd();
+                        continue; 
+                    }
+                }
+            }
 
             int next_x = enemy->x + dx;
             int next_y = enemy->y + dy;
@@ -120,22 +141,28 @@ void GameEngine::HandleEnemiesTurn() {
             }
 
             if (ability_name == "Teleport" && path_blocked) {
-                int jump_x = enemy->x + (dx * 2);
-                int jump_y = enemy->y + (dy * 2);
+                if (enemy->CanUseAbilities()) {
+                    int jump_x = enemy->x + (dx * 2);
+                    int jump_y = enemy->y + (dy * 2);
 
-                if (jump_x >= 0 && jump_x < field.GetWidth() && jump_y >= 0 && jump_y < field.GetHeight()) {
-                    Cell& jump_cell = field.GetCell(jump_x, jump_y);
-                    // Если точка проходима и свободна — телепортируемся туда
-                    if (jump_cell.GetTerrain() != Cell::Terrain::Wall && !jump_cell.HasRobot()) {
-                        bool jumped = enemy->UseAbility(0, field, jump_x, jump_y);
-                        if (jumped) {
-                            continue; 
+                    if (jump_x >= 0 && jump_x < field.GetWidth() && jump_y >= 0 && jump_y < field.GetHeight()) {
+                        Cell& jump_cell = field.GetCell(jump_x, jump_y);
+                        if (jump_cell.GetTerrain() != Cell::Terrain::Wall && !jump_cell.HasRobot()) {
+                            bool jumped = enemy->UseAbility(0, field, jump_x, jump_y);
+                            if (jumped) {
+                                enemy->UpdateStatusesAtTurnEnd();
+                                continue; 
+                            }
                         }
                     }
                 }
             }
 
-            MoveRobot(robots[i]->x, robots[i]->y, dx, dy);
+            if (enemy->CanMove()) {
+                MoveRobot(robots[i]->x, robots[i]->y, dx, dy);
+            }
+            
+            enemy->UpdateStatusesAtTurnEnd();
         }
     }
 }
@@ -191,6 +218,13 @@ std::pair<int, int> GameEngine::SelectTargetCoordinate() {
 }
 
 void GameEngine::MovePlayer(int dx, int dy) {
+    if (!player_ptr->CanMove()) {
+        mvprintw(field.GetHeight() + 1, 0, "[!] Action failed: Robot is Slowed!");
+        getch();
+        player_ptr->ChangeSpeed(-player_ptr->GetSpeed());
+        return;
+    }
+    
     while ((dx != 0 || dy != 0) && player_ptr->GetSpeed() != 0) {
         bool was_interacted = MoveRobot(player_ptr->x, player_ptr->y, dx, dy);
         player_ptr->ChangeSpeed(-1);
@@ -329,6 +363,15 @@ void GameEngine::Run() {
     }
 
     while (true) {
+        if (player_ptr) {
+            player_ptr->UpdateStatusesAtTurnStart();
+            
+            if (player_ptr->GetHp() <= 0) {
+                if (!Step()) break; 
+                continue;
+            }
+        }
+
         bool player_turn_ended = false;
 
         while (!player_turn_ended) {
@@ -354,6 +397,10 @@ void GameEngine::Run() {
             }
 
             player_turn_ended = HandlePlayerTurn(cmd);
+        }
+
+        if (player_ptr) {
+            player_ptr->UpdateStatusesAtTurnEnd();
         }
             
         if (player_ptr && player_ptr->GetRank() != last_player_rank) {
