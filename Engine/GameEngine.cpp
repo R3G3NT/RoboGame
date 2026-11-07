@@ -357,7 +357,7 @@ void GameEngine::Run() {
         }
             
         if (player_ptr && player_ptr->GetRank() != last_player_rank) {
-            LevelLoader::ShowUpgradeMenu(player_ptr);
+            Visualizer::ShowUpgradeMenu(player_ptr);
             
             last_player_rank = player_ptr->GetRank();
             

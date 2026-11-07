@@ -13,6 +13,7 @@ public:
     static void Draw(Field& field);
     static void DrawStatus(std::shared_ptr<Robot> robot);
     static void UpdateScreen(Field& field, int current_move, std::shared_ptr<Robot> player_ptr);
+    static void ShowUpgradeMenu(std::shared_ptr<Robot> player);
 };
 
 #endif
