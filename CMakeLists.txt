@@ -32,6 +32,8 @@ add_executable(robogame_tests
         tests/test_cell.cpp
         tests/test_field.cpp
         tests/test_gameengine.cpp
+        tests/test_statuses.cpp
+        tests/test_abilities.cpp
 )
 target_link_libraries(robogame_tests PRIVATE robogame_core GTest::gtest_main)
 include(GoogleTest)

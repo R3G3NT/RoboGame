@@ -1,5 +1,6 @@
 #include "Field/Cell.h"
 #include "Robot/Robot.h"
+#include "Robot/Statuses.h"
 #include <gtest/gtest.h>
 
 TEST(Cell, DefaultIsFloorAndWalkable) {
@@ -37,4 +38,19 @@ TEST(Cell, VisibilityCanBeChanged) {
 
     c.SetVisible(false);
     EXPECT_FALSE(c.IsVisible());
+}
+
+TEST(Cell, TransferStatusToRobotOnStep) {
+    Cell cell(Cell::Terrain::Floor);
+    Robot player("Optimus", Robot::Type::Player, 100, 20, 60, 2);
+    
+    // Закладываем ловушку перегрузки на клетку
+    cell.AddCellStatus(std::make_shared<OverloadStatus>());
+    EXPECT_EQ(cell.GetCellStatuses().size(), 1);
+    
+    // Робот наступает на клетку
+    cell.TransferRandomStatusToRobot(&player);
+    
+    EXPECT_FALSE(player.CanUseAbilities()); // Робот перегружен
+    EXPECT_EQ(cell.GetCellStatuses().size(), 0); // На клетке отсутствует статус
 }
