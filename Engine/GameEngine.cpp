@@ -86,15 +86,53 @@ void GameEngine::CleanDeadRobots() {
 void GameEngine::HandleEnemiesTurn() {
     if (!player_ptr) return;
 
-    for (int i = 0; i < robots.size(); i++) {
+    for (size_t i = 0; i < robots.size(); i++) {
         if (!player_ptr) return;
 
         if (robots[i]->GetType() == Robot::Type::Enemy) {
+            Robot* enemy = robots[i].get();
+            const auto& enemy_abilities = enemy->GetAbilities();
+            std::string ability_name = enemy_abilities[0]->GetName();
+
+            if (ability_name == "Self Heal" && enemy->GetHp() <= (enemy->GetMaxHp() / 4)) {
+                bool used_heal = enemy->UseAbility(0, field);
+                if (used_heal) {
+                    continue; 
+                }
+            }
+
+            // Рассчитываем вектор движения к игроку
             int dx = 0, dy = 0;
-            if (player_ptr->x > robots[i]->x)      dx = 1;
-            else if (player_ptr->x < robots[i]->x) dx = -1;
-            else if (player_ptr->y > robots[i]->y) dy = 1;
-            else if (player_ptr->y < robots[i]->y) dy = -1;
+            if (player_ptr->x > enemy->x)      dx = 1;
+            else if (player_ptr->x < enemy->x) dx = -1;
+            else if (player_ptr->y > enemy->y) dy = 1;
+            else if (player_ptr->y < enemy->y) dy = -1;
+
+            int next_x = enemy->x + dx;
+            int next_y = enemy->y + dy;
+            bool path_blocked = false;
+            if (next_x >= 0 && next_x < field.GetWidth() && next_y >= 0 && next_y < field.GetHeight()) {
+                Cell& next_cell = field.GetCell(next_x, next_y);
+                if (next_cell.GetTerrain() == Cell::Terrain::Wall || next_cell.HasRobot()) {
+                    path_blocked = true;
+                }
+            }
+
+            if (ability_name == "Teleport" && path_blocked) {
+                int jump_x = enemy->x + (dx * 2);
+                int jump_y = enemy->y + (dy * 2);
+
+                if (jump_x >= 0 && jump_x < field.GetWidth() && jump_y >= 0 && jump_y < field.GetHeight()) {
+                    Cell& jump_cell = field.GetCell(jump_x, jump_y);
+                    // Если точка проходима и свободна — телепортируемся туда
+                    if (jump_cell.GetTerrain() != Cell::Terrain::Wall && !jump_cell.HasRobot()) {
+                        bool jumped = enemy->UseAbility(0, field, jump_x, jump_y);
+                        if (jumped) {
+                            continue; 
+                        }
+                    }
+                }
+            }
 
             MoveRobot(robots[i]->x, robots[i]->y, dx, dy);
         }
