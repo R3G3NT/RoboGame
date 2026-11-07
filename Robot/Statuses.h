@@ -71,7 +71,7 @@ public:
 
     void OnTurnStart(Robot* robot) override {
         if (duration > 0) {
-            robot->ChangeHp(-damage_per_turn);
+            robot->TakeDamage(damage_per_turn);
             duration--;
         }
     }

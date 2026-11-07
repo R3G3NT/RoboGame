@@ -5,6 +5,8 @@
 #include "Robot.h"
 #include "Field/Field.h"
 #include "Engine/Config.h"
+#include "IStatus.h"
+#include "Statuses.h"
 #include <string>
 #include <algorithm>
 
@@ -43,6 +45,9 @@ public:
                     if (cell.HasRobot() && cell.GetRobot()->GetType() == Robot::Type::Enemy) {
                         Robot* target = cell.GetRobot();
                         target->TakeDamage(Config::AreaAttackDamage); 
+
+                        target->ApplyStatus(std::make_shared<OverloadStatus>());
+                        
                         hit_anyone = true;
                     }
                 }
@@ -80,9 +85,12 @@ public:
 
         Robot* target = cell.GetRobot();
         if (cell.GetRobot()->GetType() == Robot::Type::Enemy) {
-            // Увеличиваем урон в зависимости от уровня способности
             int final_damage = Config::RangedAttackDamage + (level - 1) * 15;
             target->TakeDamage(final_damage);
+            
+            int burn_duration = 2 + (level - 1); 
+            target->ApplyStatus(std::make_shared<BurnStatus>(burn_duration));
+            
             user->ChangeEnergy(-GetEnergyCost());
             user->AddExp(5);
             return true;
@@ -90,6 +98,7 @@ public:
         return false; 
     }
 };
+
 
 class HealAbility : public IAbility {
 private:
@@ -104,12 +113,19 @@ public:
     bool Use(Robot* user, Field& /*field*/, int /*target_x*/, int /*target_y*/) override {
         if (user->GetEnergy() < GetEnergyCost()) 
             return false;
-        if (user->GetHp() >= user->GetMaxHp()) 
-            return false; 
-
-        // Увеличиваем количество лечения в зависимости от уровня
+        
         int final_heal = Config::SelfHealAmount + (level - 1) * 15;
-        user->ChangeHp(final_heal);
+        int missing_hp = user->GetMaxHp() - user->GetHp();
+
+        if (final_heal <= missing_hp) {
+            user->ChangeHp(final_heal);
+        } 
+        else {
+            user->ChangeHp(missing_hp);
+            int overheal = final_heal - missing_hp;
+            user->ApplyStatus(std::make_shared<ShieldStatus>(overheal));
+        }
+
         user->ChangeEnergy(-GetEnergyCost());
         return true;
     }
@@ -124,7 +140,6 @@ public:
     int GetLevel() const override { return level; }
     void Upgrade() override { level++; }
     
-    // Снижаем стоимость энергии на 5 EN за каждый уровень (но не ниже 5 EN)
     int GetEnergyCost() const override { 
         return std::max(5, Config::TeleportEnergyCost - (level - 1) * 5); 
     }
