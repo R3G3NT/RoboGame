@@ -11,10 +11,12 @@ public:
     virtual ~IAbility() = default;
 
     virtual std::string GetName() const = 0;
-
     virtual int GetEnergyCost() const = 0;
 
     virtual bool Use(Robot* user, Field& field, int target_x = 0, int target_y = 0) = 0;
+
+    virtual void Upgrade() = 0;
+    virtual int GetLevel() const = 0;
 };
 
 #endif

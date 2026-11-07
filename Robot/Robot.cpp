@@ -1,6 +1,7 @@
 #include "Robot.h"
-#include "Engine/Config.h"
+#include "IAbility.h"
 #include "Abilities.h"
+#include "Engine/Config.h"
 #include <algorithm>
 
 Robot::Robot(std::string name, Type type, int hp, int attack, int energy, int speed)

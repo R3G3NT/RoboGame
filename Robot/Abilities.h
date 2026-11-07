@@ -2,12 +2,12 @@
 #define ABILITIES_H_
 
 #include "IAbility.h"
-#include "Robot/Robot.h"
+#include "Robot.h"
 #include "Field/Field.h"
 #include "Engine/Config.h"
 #include <string>
+#include <algorithm>
 
-//Проверяет, лежит ли целевая точка внутри круга заданного радиуса.
 inline bool IsInsideRadius(int start_x, int start_y, int target_x, int target_y, int radius) {
     int dx = start_x - target_x;
     int dy = start_y - target_y;
@@ -15,24 +15,23 @@ inline bool IsInsideRadius(int start_x, int start_y, int target_x, int target_y,
 }
 
 class AreaAttackAbility : public IAbility {
+private:
+    int level = 1;
+
 public:
-    std::string GetName() const override { 
-        return "Area Attack"; 
-    }
-    
-    int GetEnergyCost() const override { 
-        return Config::AreaAttackEnergyCost; 
-    } 
+    std::string GetName() const override { return "Area Attack"; }
+    int GetEnergyCost() const override { return Config::AreaAttackEnergyCost; } 
+    int GetLevel() const override { return level; }
+    void Upgrade() override { level++; }
 
     bool Use(Robot* user, Field& field, int /*target_x*/, int /*target_y*/) override {
-        if (user->GetEnergy() < GetEnergyCost()) {
-            return false;
-        }
+        if (user->GetEnergy() < GetEnergyCost()) return false;
 
         bool hit_anyone = false;
+        int current_radius = level; 
 
-        for (int dy = -1; dy <= 1; dy++) {
-            for (int dx = -1; dx <= 1; dx++) {
+        for (int dy = -current_radius; dy <= current_radius; dy++) {
+            for (int dx = -current_radius; dx <= current_radius; dx++) {
                 if (dx == 0 && dy == 0) continue;
 
                 int nx = user->x + dx;
@@ -40,6 +39,7 @@ public:
 
                 if (nx >= 0 && nx < field.GetWidth() && ny >= 0 && ny < field.GetHeight()) {
                     Cell& cell = field.GetCell(nx, ny);
+
                     if (cell.HasRobot() && cell.GetRobot()->GetType() == Robot::Type::Enemy) {
                         Robot* target = cell.GetRobot();
                         target->ChangeHp(-Config::AreaAttackDamage); 
@@ -50,106 +50,97 @@ public:
         }
 
         user->ChangeEnergy(-GetEnergyCost());
-        if (hit_anyone) {
-            user->AddExp(5); 
-        }
+        if (hit_anyone) user->AddExp(5); 
         return true;
     }
 };
 
 class RangedAttackAbility : public IAbility {
+private:
+    int level = 1;
+
 public:
-    std::string GetName() const override { 
-        return "Ranged Attack"; 
-    }
-    
-    int GetEnergyCost() const override { 
-        return Config::RangedAttackEnergyCost; 
-    }
+    std::string GetName() const override { return "Ranged Attack"; }
+    int GetEnergyCost() const override { return Config::RangedAttackEnergyCost; }
+    int GetLevel() const override { return level; }
+    void Upgrade() override { level++; }
 
     bool Use(Robot* user, Field& field, int target_x, int target_y) override {
-        if (user->GetEnergy() < GetEnergyCost()) {
+        if (user->GetEnergy() < GetEnergyCost()) 
             return false;
-        }
-
-        if (target_x < 0 || target_x >= field.GetWidth() || target_y < 0 || target_y >= field.GetHeight()) {
+        if (target_x < 0 || target_x >= field.GetWidth() || target_y < 0 || target_y >= field.GetHeight()) 
             return false;
-        }
 
-        if (!IsInsideRadius(user->x, user->y, target_x, target_y, 3)) {
+        if (!IsInsideRadius(user->x, user->y, target_x, target_y, 3)) 
             return false; 
-        }
 
         Cell& cell = field.GetCell(target_x, target_y);
-        if (!cell.HasRobot()) {
+        if (!cell.HasRobot()) 
             return false; 
-        }
 
         Robot* target = cell.GetRobot();
         if (cell.GetRobot()->GetType() == Robot::Type::Enemy) {
-            target->ChangeHp(-Config::RangedAttackDamage);
+            // Увеличиваем урон в зависимости от уровня способности
+            int final_damage = Config::RangedAttackDamage + (level - 1) * 15;
+            target->ChangeHp(-final_damage);
             user->ChangeEnergy(-GetEnergyCost());
             user->AddExp(5);
             return true;
         }
-
         return false; 
     }
 };
 
 class HealAbility : public IAbility {
+private:
+    int level = 1;
+
 public:
-    std::string GetName() const override { 
-        return "Self Heal"; 
-    }
-    
-    int GetEnergyCost() const override { 
-        return Config::SelfHealEnergyCost; 
-    }
+    std::string GetName() const override { return "Self Heal"; }
+    int GetEnergyCost() const override { return Config::SelfHealEnergyCost; }
+    int GetLevel() const override { return level; }
+    void Upgrade() override { level++; }
 
     bool Use(Robot* user, Field& /*field*/, int /*target_x*/, int /*target_y*/) override {
-        if (user->GetEnergy() < GetEnergyCost()) {
+        if (user->GetEnergy() < GetEnergyCost()) 
             return false;
-        }
-        
-        if (user->GetHp() >= user->GetMaxHp()) {
+        if (user->GetHp() >= user->GetMaxHp()) 
             return false; 
-        }
 
-        user->ChangeHp(Config::SelfHealAmount);
+        // Увеличиваем количество лечения в зависимости от уровня
+        int final_heal = Config::SelfHealAmount + (level - 1) * 15;
+        user->ChangeHp(final_heal);
         user->ChangeEnergy(-GetEnergyCost());
         return true;
     }
 };
 
 class TeleportAbility : public IAbility {
+private:
+    int level = 1;
+
 public:
-    std::string GetName() const override { 
-        return "Teleport"; 
-    }
+    std::string GetName() const override { return "Teleport"; }
+    int GetLevel() const override { return level; }
+    void Upgrade() override { level++; }
     
+    // Снижаем стоимость энергии на 5 EN за каждый уровень (но не ниже 5 EN)
     int GetEnergyCost() const override { 
-        return Config::TeleportEnergyCost; 
+        return std::max(5, Config::TeleportEnergyCost - (level - 1) * 5); 
     }
 
     bool Use(Robot* user, Field& field, int target_x, int target_y) override {
-        if (user->GetEnergy() < GetEnergyCost()) {
+        if (user->GetEnergy() < GetEnergyCost()) 
             return false;
-        }
+        if (target_x < 0 || target_x >= field.GetWidth() || target_y < 0 || target_y >= field.GetHeight()) 
+            return false;
 
-        if (target_x < 0 || target_x >= field.GetWidth() || target_y < 0 || target_y >= field.GetHeight()) {
+        if (!IsInsideRadius(user->x, user->y, target_x, target_y, 5)) 
             return false;
-        }
-
-        if (!IsInsideRadius(user->x, user->y, target_x, target_y, 5)) {
-            return false;
-        }
 
         Cell& target_cell = field.GetCell(target_x, target_y);
-
-        if (target_cell.GetTerrain() == Cell::Terrain::Wall || target_cell.HasRobot()) {
+        if (target_cell.GetTerrain() == Cell::Terrain::Wall || target_cell.HasRobot()) 
             return false;
-        }
 
         field.GetCell(user->x, user->y).RemoveRobot();
         target_cell.SetRobot(user);
