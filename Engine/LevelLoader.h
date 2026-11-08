@@ -17,7 +17,6 @@ private:
 
 public:
     static void Load(GameEngine& engine, const std::vector<std::string>& level);
-    static void ShowUpgradeMenu(std::shared_ptr<Robot> player);
 };
 
 #endif
