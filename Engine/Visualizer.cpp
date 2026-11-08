@@ -17,11 +17,13 @@ void Visualizer::InitScreen() {
 
 if (has_colors()) {
         start_color();
+        // Заставляем ncurses брать настройки вашей темы терминала
+        use_default_colors(); 
         // Настраиваем цветовые пары: init_pair(ID, цвет_текста, цвет_фона)
-        init_pair(1, COLOR_WHITE, COLOR_BLACK);  // Пара 1: СТАНДАРТНЫЙ режим (Белый текст)
-        init_pair(2, COLOR_RED, COLOR_BLACK);    // Пара 2: Красный для Врагов
-        init_pair(3, COLOR_BLUE, COLOR_BLACK);   // Пара 3: Синий для Стен
-        init_pair(4, COLOR_BLACK, COLOR_GREEN); // Пара 4: Фиолетовый для Ловушек
+        init_pair(1, COLOR_WHITE, -1);           // СТАНДАРТНЫЙ режим (Белый текст)
+        init_pair(2, COLOR_RED, -1);             // Красный для Врагов
+        init_pair(3, COLOR_BLUE, -1);            // Синий для Стен
+        init_pair(4, COLOR_BLACK, COLOR_GREEN);  // Зеленый фон для Ловушек
     }
     clear();
 }
