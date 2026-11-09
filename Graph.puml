@@ -322,18 +322,18 @@ Robot      --> RobotType      : uses
 Cell       --> CellTerrain    : uses
 Visualizer --> RenderMode     : uses
 
-Robot      *-- IAbility       : owns
-Robot      *-- IStatus        : owns
+Robot      *-- IAbility       : owns ptr
+Robot      *-- IStatus        : owns ptr
 Cell       o-- IStatus        : traps contain
 
-GameEngine --> Config         : uses
-GameEngine --> Visualizer     : uses
-GameEngine --> InputHandler   : uses
-GameEngine --> Command        : uses
+GameEngine ..> Config         : uses
+GameEngine ..> Visualizer     : uses
+GameEngine ..> InputHandler   : uses
+GameEngine ..> Command        : uses
 
-LevelLoader --> GameEngine    : initialize field
-LevelLoader --> Config        : uses
-InputHandler --> Command      : produces
+LevelLoader ..> GameEngine    : initialize field
+LevelLoader ..> Config        : uses
+InputHandler ..> Command      : produces
 Command      --> CommandType  : uses
-Robot        --> Config       : uses
+Robot        ..> Config       : uses
 @enduml
